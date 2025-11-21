@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model amenity {
+  id               Int             @id
+  type             String?         @db.VarChar(128)
+  item_description String?         @db.VarChar(255)
+  venue_amenity    venue_amenity[]
+}
+
+model building {
+  id      Int     @id
+  name    String? @db.VarChar(255)
+  address String? @db.VarChar(255)
+}
+
+model renovation_date {
+  id         Int       @id
+  venue_id   Int?
+  begin_date DateTime? @db.Date
+  end_date   DateTime? @db.Date
+  venue      venue?    @relation(fields: [venue_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model reservation {
+  id                Int       @id
+  parent_user       Int?
+  parent_venue      Int?
+  start_datetime    DateTime? @db.Timestamp(6)
+  end_datetime      DateTime? @db.Timestamp(6)
+  participant_count Int?
+  ss_user           ss_user?  @relation(fields: [parent_user], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  venue             venue?    @relation(fields: [parent_venue], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model ss_user {
+  id          Int           @id
+  usertype    Int?
+  lastname    String?       @db.VarChar(32)
+  firstname   String?       @db.VarChar(32)
+  middlename  String?       @db.VarChar(32)
+  birthdate   DateTime?     @db.Date
+  reservation reservation[]
+  venue       venue[]
+}
+
+model venue {
+  id              Int               @id
+  agent_id        Int?
+  venue_name      String?           @db.VarChar(255)
+  venue_type      String?           @db.VarChar(128)
+  capacity        Int?
+  floor           Int?
+  floor_area      Int?
+  renovation_date renovation_date[]
+  reservation     reservation[]
+  ss_user         ss_user?          @relation(fields: [agent_id], references: [id], onUpdate: NoAction)
+  venue_amenity   venue_amenity[]
+}
+
+model venue_amenity {
+  amenity_id Int
+  venue_id   Int
+  quantity   Int?    @default(1)
+  amenity    amenity @relation(fields: [amenity_id], references: [id], onUpdate: NoAction)
+  venue      venue   @relation(fields: [venue_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([venue_id, amenity_id])
+}
