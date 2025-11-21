@@ -1,26 +1,12 @@
 const express = require('express');
+const { PrismaClient } = require("./generated/prisma");
 const path = require('path');
 const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = express();
+const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3000;
-
-const pool = new Pool({
-    user: process.env.PG_USER,
-    host: process.env.PG_HOST,
-    database: process.env.PG_DATABASE,
-    password: process.env.PG_PASSWORD,
-    port: process.env.PG_PORT,
-});
-
-pool.on('connect', () => {
-    console.log('Database pool connected successfully.');
-});
-
-pool.on('error', (err) => {
-    console.error('Unexpected error on idle client', err);
-});
 
 app.use(express.json());
 
