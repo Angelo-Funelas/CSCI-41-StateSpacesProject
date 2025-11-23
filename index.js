@@ -14,25 +14,56 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Sample Code for Later
-// app.get('/api/users', async (req, res) => {
-//     try {
-//         const result = await pool.query('SELECT id, name, email FROM users LIMIT 10;');
-//         res.json({
-//             message: 'Successfully retrieved data from PostgreSQL',
-//             count: result.rowCount,
-//             data: result.rows
-//         });
+/**
+ * For getting dashboard content.
+ * 
+ * TODO: implement
+ */
+app.get('/api/dashboard/:id', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = await prisma.ss_user.findMany({
+        where: { id: id }
+    });
+    res.json(data);
+});
 
-//     } catch (err) {
-//         console.error('Database query error:', err.message);
-//         res.status(500).json({
-//             error: 'Failed to query database.',
-//             details: 'Ensure your PostgreSQL server is running, the "users" table exists, and environment variables are set correctly.',
-//             internalError: err.message
-//         });
-//     }
-// });
+/**
+ * For getting venue details.
+ */
+app.get('/api/venue/:id', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = await prisma.venue.findMany({
+        where: { id },
+        include: {
+            ss_user: {
+                include: { id: false }
+            },
+            venue_amenity: {
+                include: {
+                    venue_id: false,
+                    amenity_id: false,
+                    amenity: true
+                }
+            }
+        }
+    });
+
+    res.json(data);
+});
+
+/**
+ * For getting building details.
+ * 
+ * TODO: implement
+ * NOTE: waiting for confirmation if db needs to be modified.
+ */
+app.get('/api/building/:id', async (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = await prisma.building.findMany({
+        where: { id: id }
+    });
+    res.json(data);
+});
 
 app.listen(PORT, () => {
     console.log(`Express server running on http://localhost:${PORT}`);
