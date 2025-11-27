@@ -17,13 +17,44 @@ app.get('/', (req, res) => {
 /**
  * For getting dashboard content.
  * 
- * TODO: implement
+ * TODO: implement buildings, derive value for whether venue is available or not
  */
 app.get('/api/dashboard/:id', async (req, res) => {
     const id = parseInt(req.params.id);
-    const data = await prisma.ss_user.findMany({
-        where: { id: id }
-    });
+    const [agent, buildings, reservations, venues] = await prisma.$transaction([
+        prisma.ss_user.findUnique({ where: { id } }),
+        prisma.building.findMany(),
+        prisma.reservation.findMany({
+            where: {
+                venue: {
+                    agent_id: id
+                }
+            },
+            include: {
+                ss_user: {
+                    select: {
+                        lastname: true,
+                        firstname: true,
+                        middlename: true
+                    }
+                },
+                venue: {
+                    select: { venue_name: true }
+                }
+            },
+            take: 5
+        }),
+        prisma.venue.findMany({
+            where: { agent_id: id },
+            select: {
+                id: true,
+                venue_name: true,
+                venue_type: true
+            }
+        })
+    ]);
+
+    const data = { agent, buildings, reservations, venues };
     res.json(data);
 });
 
