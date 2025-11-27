@@ -17,17 +17,36 @@ app.get('/', (req, res) => {
 /**
  * For getting dashboard content.
  * 
- * TODO: implement buildings, derive value for whether venue is available or not
+ * TODO: implement getting info on agent's buildings
+ * NOTE: waiting for db modification
  */
 app.get('/api/dashboard/:id', async (req, res) => {
     const id = parseInt(req.params.id);
-    const [agent, buildings, reservations, venues] = await prisma.$transaction([
-        prisma.ss_user.findUnique({ where: { id } }),
+    const agent = await prisma.ss_user.findUnique({ where: { id } });
+
+    // Fail fast if id is not attributed to an agent
+    if (agent.usertype != 1) {
+        res.status(400).send("User is not an agent!");
+        return
+    }
+
+    const [buildings, venues, reservations, renovations] = await prisma.$transaction([
         prisma.building.findMany(),
+        prisma.venue.findMany({
+            where: { agent_id: id },
+            select: {
+                id: true,
+                venue_name: true,
+                venue_type: true
+            }
+        }),
         prisma.reservation.findMany({
             where: {
                 venue: {
                     agent_id: id
+                },
+                start_datetime: {
+                    gte: new Date()
                 }
             },
             include: {
@@ -44,17 +63,25 @@ app.get('/api/dashboard/:id', async (req, res) => {
             },
             take: 5
         }),
-        prisma.venue.findMany({
-            where: { agent_id: id },
-            select: {
-                id: true,
-                venue_name: true,
-                venue_type: true
-            }
+        prisma.renovation_date.findMany({
+            where: {
+                venue: {
+                    agent_id: id
+                },
+                begin_date: {
+                    gte: new Date()
+                }
+            },
+            include: {
+                venue: {
+                    select: { venue_name: true }
+                }
+            },
+            take: 5
         })
     ]);
 
-    const data = { agent, buildings, reservations, venues };
+    const data = { agent, buildings, venues, reservations, renovations };
     res.json(data);
 });
 
@@ -63,22 +90,31 @@ app.get('/api/dashboard/:id', async (req, res) => {
  */
 app.get('/api/venue/:id', async (req, res) => {
     const id = parseInt(req.params.id);
-    const data = await prisma.venue.findMany({
-        where: { id },
-        include: {
-            ss_user: {
-                include: { id: false }
-            },
-            venue_amenity: {
-                include: {
-                    venue_id: false,
-                    amenity_id: false,
-                    amenity: true
+    const [venue, agent, amenities] = await prisma.$transaction([
+        prisma.venue.findUnique({ where: { id } }),
+        prisma.ss_user.findMany({
+            where: {
+                venue: { 
+                    some: { id }
                 }
+            },
+            include: {
+                id: false,
+                usertype: false,
+                birthdate: false
             }
-        }
-    });
+        }),
+        prisma.venue_amenity.findMany({
+            where: { venue_id: id },
+            include: {
+                venue_id: false,
+                amenity_id: false,
+                amenity: true
+            }
+        })
+    ]);
 
+    const data = { venue, agent, amenities };
     res.json(data);
 });
 
@@ -86,7 +122,7 @@ app.get('/api/venue/:id', async (req, res) => {
  * For getting building details.
  * 
  * TODO: implement
- * NOTE: waiting for confirmation if db needs to be modified.
+ * NOTE: waiting for db modification
  */
 app.get('/api/building/:id', async (req, res) => {
     const id = parseInt(req.params.id);
