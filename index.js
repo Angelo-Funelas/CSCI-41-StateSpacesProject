@@ -116,6 +116,7 @@ app.get("/logout", (req, res, next) => {
     });
 });
 app.get('/register', (req, res) => {
+    if (req.isAuthenticated()) return res.redirect(`/`);
     res.sendFile("html/auth/register.html", {root: path.join(__dirname)});
 });
 app.post("/register", async (req, res) => {
@@ -129,7 +130,12 @@ app.post("/register", async (req, res) => {
     await prisma.user.create({
       data: {
         username: validatedUsername,
-        password: hashedPassword
+        password: hashedPassword,
+        usertype: parseInt(req.body.usertype),
+        lastname: req.body.lastname,
+        firstname: req.body.firstname,
+        middlename: req.body.middlename,
+        birthdate: new Date(req.body.birthdate)
       },
     });
     console.log(`Registered user: ${validatedUsername} ${validatedPassword}`)
@@ -149,13 +155,13 @@ app.post("/register", async (req, res) => {
  * TODO: implement getting info on agent's buildings
  * NOTE: waiting for db modification
  */
-app.get('/api/dashboard/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
+app.get('/api/dashboard', async (req, res) => {
+    const id = req.user.id;
     const agent = await prisma.user.findUnique({ where: { id } });
 
     // Fail fast if id is not attributed to an agent
     if (agent.usertype != 1) {
-        res.status(400).send("User is not an agent!");
+        res.status(400).send(`User is not an agent! ${agent.usertype}`);
         return
     }
 
