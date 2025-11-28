@@ -1,63 +1,67 @@
--- DISCLAIMER: i have NOT checked if these are correct 
---             but based on observation, they seem to be fine lmao
+TRUNCATE TABLE "venue_amenity" CASCADE;
+TRUNCATE TABLE "reservation" CASCADE;
+TRUNCATE TABLE "renovation_date" CASCADE;
+TRUNCATE TABLE "venue" CASCADE;
+TRUNCATE TABLE "amenity" CASCADE;
+TRUNCATE TABLE "User" CASCADE;
+TRUNCATE TABLE "building" CASCADE;
 
-insert into amenity(id, type, item_description) values
-    (1, 'chair', 'you sit on it'),
-    (2, 'table', 'you put things on it'),
-    (3, 'tv', 'you see things on it'),
-    (4, 'lights', 'it lets you see things'),
-    (5, 'PC workstations', 'gaming baby'),
-    (6, 'microwave ovens', 'heats food up'),
-    (7, 'coffee press', 'makes coffee'),
-    (8, 'sinks', 'wash hand'),
-    (9, 'plates', 'eat on'),
-    (10, 'utensil sets', 'eat with'),
-    (11, 'long table', 'table but long'),
-    (12, 'round table', 'table but round');
+INSERT INTO "building" ("name", "address") VALUES
+('Science Complex', '123 University Ave'),
+('Liberal Arts Hall', '124 University Ave'),
+('Engineering Wing', '125 University Ave'),
+('Student Center', '126 University Ave'),
+('Main Library', '127 University Ave'),
+('Administration Bldg', '128 University Ave'),
+('Sports Center', '129 University Ave'),
+('Dormitory A', '130 University Ave'),
+('Research Hub', '131 University Ave'),
+('Alumni House', '132 University Ave');
 
-insert into building(id, name, address) values
-    (1, 'Revana Peak', '81st Street, 3rd District, Metro City'),
-    (2, 'Mavia Center', 'Maker Street, 4th District, Metro City');
+INSERT INTO "amenity" ("type", "item_description") VALUES
+('Visual Aid', 'LCD Projector with HDMI'),
+('Audio', 'Wireless Microphone Set'),
+('Furniture', 'Ergonomic Office Chairs'),
+('Connectivity', 'High-Speed Wi-Fi Router'),
+('Climate', 'Split-type Air Conditioner'),
+('Visual Aid', 'Whiteboard (Rolling)'),
+('Audio', 'Surround Sound Speakers'),
+('Furniture', 'Conference Table (12-seater)'),
+('Equipment', 'Podium with light'),
+('Equipment', 'Extension Cords (Heavy Duty)');
 
-insert into renovation_date(id, venue_id, begin_date, end_date) values
-    (1, 1, '2026-01-01', '2026-01-04'),
-    (2, 3, '2026-01-10', '2026-01-20');
+INSERT INTO "venue" ("agent_id", "venue_name", "venue_type", "capacity", "floor", "floor_area", "buildingId") VALUES
+(NULL, 'Lecture Hall 101', 'Classroom', 50, 1, 80, 1),
+(NULL, 'Comp Lab A', 'Laboratory', 30, 2, 100, 1),
+(NULL, 'Art Studio 1', 'Studio', 20, 1, 60, 2),
+(NULL, 'Grand Auditorium', 'Auditorium', 300, 1, 500, 2),
+(NULL, 'Meeting Room A', 'Meeting Room', 10, 3, 25, 3),
+(NULL, 'Open Court', 'Sports', 100, 1, 600, 7),
+(NULL, 'Study Lounge', 'Lounge', 40, 2, 120, 5),
+(NULL, 'Function Room B', 'Event Hall', 80, 4, 150, 6),
+(NULL, 'Physics Lab', 'Laboratory', 35, 3, 110, 1),
+(NULL, 'Music Room', 'Studio', 15, 2, 40, 2);
 
-insert into reservation(id, parent_user, parent_venue, start_datetime, end_datetime, participant_count) values
-    (1, 1, 1, '2025-11-30 00:00:00', '2025-12-15 12:00:00', 25),
-    (2, 1, 3, '2025-11-20 00:00:00', '2025-11-25 12:00:00', 25),
-    (3, 1, 4, '2025-11-25 00:00:00', '2025-11-26 12:00:00', 48),
-    (4, 1, 5, '2025-12-01 00:00:00', '2025-12-03 12:00:00', 2);
+INSERT INTO "venue_amenity" ("venue_id", "amenity_id", "quantity", "bldg_id") VALUES
+(1, 1, 1, 1), -- Lecture Hall gets Projector
+(1, 6, 1, 1), -- Lecture Hall gets Whiteboard
+(2, 4, 2, 1), -- Comp Lab gets 2 Wifi Routers
+(2, 5, 2, 1), -- Comp Lab gets 2 ACs
+(4, 2, 4, 2), -- Auditorium gets 4 Mics
+(4, 7, 10, 2), -- Auditorium gets 10 Speakers
+(5, 8, 1, 3), -- Meeting Room gets Table
+(8, 9, 1, 6), -- Function Room gets Podium
+(9, 6, 2, 1), -- Physics Lab gets 2 Whiteboards
+(3, 3, 20, 2); -- Art Studio gets 20 Chairs
 
-insert into user(id, usertype, lastname, firstname, middlename, birthdate) values
-    (1, 0, 'Carbonell', 'Paige', 'J', '2025-11-22'),
-    (2, 0, 'Funelas', 'Gelo', 'M', '2025-11-22'),
-    (3, 1, 'Marcellino', 'Jaren', 'G', '2025-11-22'),
-    (4, 1, 'Mones', 'Martin', 'C', '2025-11-22'),
-    (5, 0, 'Tabo', 'Ken', 'C', '2025-11-22');
-
-insert into venue(id, agent_id, venue_name, venue_type, capacity, floor, floor_area) values
-    (1, 3, 'Lumina Workstation', 'Computer workstations', 50, 5, 156),
-    (2, 3, 'Agila Room', 'Meeting room', 22, 6, 30),
-    (3, 3, 'White Table Pantry', 'Pantry', 59, 5, 82),
-    (4, 4, 'Maestro Cuisina', 'Banquet Hall', 50, 1, 200),
-    (5, 4, 'Lancasteria Study Halls', 'Study Area', 10, 2, 67);
-
-insert into venue_amenity(amenity_id, venue_id, quantity) values
-    (3, 2, 1),
-    (2, 2, 1),
-    (1, 2, 22),
-    (5, 1, 50),
-    (6, 3, 2),
-    (7, 3, 1),
-    (8, 3, 2),
-    (9, 3, 50),
-    (10, 3, 80),
-    (11, 3, 6),
-    (12, 3, 4),
-    (1, 3, 65),
-    (1, 4, 50),
-    (2, 4, 20),
-    (8, 4, 5),
-    (2, 5, 10),
-    (1, 5, 10);
+INSERT INTO "renovation_date" ("venue_id", "begin_date", "end_date") VALUES
+(1, '2023-01-10', '2023-02-10'),
+(2, '2022-05-15', '2022-06-01'),
+(3, '2021-11-20', '2021-12-20'),
+(4, '2023-06-01', '2023-08-01'),
+(5, '2020-03-10', '2020-03-15'),
+(6, '2022-09-01', '2022-09-30'),
+(7, '2023-12-01', '2023-12-15'),
+(8, '2021-04-05', '2021-04-20'),
+(9, '2022-07-10', '2022-08-10'),
+(10, '2023-10-01', '2023-10-14');
