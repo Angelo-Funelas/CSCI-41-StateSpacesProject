@@ -156,6 +156,7 @@ app.post("/register", async (req, res) => {
  * NOTE: waiting for db modification
  */
 app.get('/api/dashboard', async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(400).send(`User is not an authenticated!`);
     const id = req.user.id;
     const agent = await prisma.user.findUnique({ where: { id } });
 
