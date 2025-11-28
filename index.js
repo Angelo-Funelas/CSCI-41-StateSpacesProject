@@ -149,6 +149,10 @@ app.post("/register", async (req, res) => {
     res.redirect(`/register?msg=${errorMessage}`);
   }
 })
+app.get('/venue/:id', (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect(`/login`);
+    res.sendFile("html/venue.html", {root: path.join(__dirname)});
+});
 
 /**
  * For getting dashboard content.
@@ -227,31 +231,26 @@ app.get('/api/dashboard', async (req, res) => {
  */
 app.get('/api/venue/:id', async (req, res) => {
     const id = parseInt(req.params.id);
-    const [venue, agent, amenities] = await prisma.$transaction([
-        prisma.venue.findUnique({ where: { id } }),
-        prisma.user.findMany({
-            where: {
-                venue: { 
-                    some: { id }
+    const venue = await prisma.venue.findUnique({ where: { id } })
+    const rennovation_dates = await prisma.renovation_date.findMany({
+        where: {
+            venue_id: id
+        }
+    });
+    const amenities = await prisma.venue_amenity.findMany({
+        where: {
+            venue_id: id
+        },
+        include: {
+            amenity: {
+                select: {
+                    type: true
                 }
-            },
-            include: {
-                id: false,
-                usertype: false,
-                birthdate: false
             }
-        }),
-        prisma.venue_amenity.findMany({
-            where: { venue_id: id },
-            include: {
-                venue_id: false,
-                amenity_id: false,
-                amenity: true
-            }
-        })
-    ]);
+    }
+    });
 
-    const data = { venue, agent, amenities };
+    const data = { venue, rennovation_dates, amenities };
     res.json(data);
 });
 
@@ -267,6 +266,29 @@ app.get('/api/building/:id', async (req, res) => {
         where: { id: id }
     });
     res.json(data);
+});
+
+app.post('/reserve/:venue_id', async (req, res) => {
+    const venue_id = parseInt(req.params.venue_id);
+    if (!req.isAuthenticated()) return res.status(401).json({ error: "User not authenticated" });
+    if (req.user.usertype !== 0) return res.status(401).json({ error: "User not customer" });
+    try {
+        const { start_date, end_date, participant_count } = req.body;
+        const venue = await prisma.venue.findUnique({ where: { id:venue_id } })
+        const rennovation_dates = await prisma.renovation_date.findMany({
+            where: {
+                venue_id: venue_id
+            }
+        });
+        console.log({
+            reqbody: req.body,
+            venue: venue,
+            rennovation_dates: rennovation_dates
+        });
+        return res.redirect(`/venue/${venue_id}?msg=Successfully+reserved+venue`);
+    } catch(err) {
+        return res.redirect(`/venue/${venue_id}?msg=${encodeURIComponent(err)}`);
+    }
 });
 
 app.listen(PORT, () => {
