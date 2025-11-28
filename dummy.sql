@@ -54,7 +54,7 @@ INSERT INTO "venue_amenity" ("venue_id", "amenity_id", "quantity", "bldg_id") VA
 (9, 6, 2, 1), -- Physics Lab gets 2 Whiteboards
 (3, 3, 20, 2); -- Art Studio gets 20 Chairs
 
-INSERT INTO "renovation_date" ("venue_id", "begin_date", "end_date") VALUES
+INSERT INTO "renovation_date" ("venue_id", "start_datetime", "end_datetime") VALUES
 (1, '2023-01-10', '2023-02-10'),
 (2, '2022-05-15', '2022-06-01'),
 (3, '2021-11-20', '2021-12-20'),

@@ -237,6 +237,11 @@ app.get('/api/venue/:id', async (req, res) => {
             venue_id: id
         }
     });
+    const reservation_dates = await prisma.reservation.findMany({
+        where: {
+            parent_venue: id
+        }
+    });
     const amenities = await prisma.venue_amenity.findMany({
         where: {
             venue_id: id
@@ -250,7 +255,7 @@ app.get('/api/venue/:id', async (req, res) => {
     }
     });
 
-    const data = { venue, rennovation_dates, amenities };
+    const data = { venue, rennovation_dates, reservation_dates, amenities };
     res.json(data);
 });
 
@@ -268,25 +273,60 @@ app.get('/api/building/:id', async (req, res) => {
     res.json(data);
 });
 
+function checkDateConflicts(start_datetime, end_datetime, unavailableRanges) {
+    const start = new Date(start_datetime).getTime();
+    const end = new Date(end_datetime).getTime();
+    if (isNaN(start) || isNaN(end) || start > end) throw new Error("Invalid or inverted date range provided for 'newRange'.");
+    for (const existingRange of unavailableRanges) {
+        const existingStart = new Date(existingRange.start_datetime).getTime();
+        const existingEnd = new Date(existingRange.end_datetime).getTime();
+
+        if (isNaN(existingStart) || isNaN(existingEnd)) continue;
+        const noConflict = (end < existingStart) || (start > existingEnd);
+
+        if (noConflict) continue;
+        throw new Error(`Reservation has conflicts`);
+    }
+    return true;
+}
 app.post('/reserve/:venue_id', async (req, res) => {
     const venue_id = parseInt(req.params.venue_id);
     if (!req.isAuthenticated()) return res.status(401).json({ error: "User not authenticated" });
     if (req.user.usertype !== 0) return res.status(401).json({ error: "User not customer" });
     try {
-        const { start_date, end_date, participant_count } = req.body;
+        console.log(req.body)
+        const { start_datetime, end_datetime, participant_count } = req.body;
         const venue = await prisma.venue.findUnique({ where: { id:venue_id } })
-        const rennovation_dates = await prisma.renovation_date.findMany({
+        const renovation_dates = await prisma.renovation_date.findMany({
             where: {
                 venue_id: venue_id
             }
         });
+        const reservation_dates = await prisma.reservation.findMany({
+            where: {
+                parent_venue: venue_id
+            }
+        });
+        const unavailable_dates = renovation_dates.concat(reservation_dates)
+        checkDateConflicts(start_datetime, end_datetime, unavailable_dates)
+        await prisma.reservation.create({
+            data: {
+                parent_user: req.user.id,
+                parent_venue: venue_id,
+                start_datetime: new Date(start_datetime),
+                end_datetime: new Date(end_datetime),
+                participant_count: parseInt(participant_count)
+            },
+        });
         console.log({
             reqbody: req.body,
-            venue: venue,
-            rennovation_dates: rennovation_dates
+            venue,
+            renovation_dates,
+            reservation_dates
         });
         return res.redirect(`/venue/${venue_id}?msg=Successfully+reserved+venue`);
     } catch(err) {
+        console.error(err)
         return res.redirect(`/venue/${venue_id}?msg=${encodeURIComponent(err)}`);
     }
 });
