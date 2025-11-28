@@ -29,7 +29,7 @@ insert into reservation(id, parent_user, parent_venue, start_datetime, end_datet
     (3, 1, 4, '2025-11-25 00:00:00', '2025-11-26 12:00:00', 48),
     (4, 1, 5, '2025-12-01 00:00:00', '2025-12-03 12:00:00', 2);
 
-insert into ss_user(id, usertype, lastname, firstname, middlename, birthdate) values
+insert into user(id, usertype, lastname, firstname, middlename, birthdate) values
     (1, 0, 'Carbonell', 'Paige', 'J', '2025-11-22'),
     (2, 0, 'Funelas', 'Gelo', 'M', '2025-11-22'),
     (3, 1, 'Marcellino', 'Jaren', 'G', '2025-11-22'),

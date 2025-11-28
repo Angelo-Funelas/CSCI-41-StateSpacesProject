@@ -151,7 +151,7 @@ app.post("/register", async (req, res) => {
  */
 app.get('/api/dashboard/:id', async (req, res) => {
     const id = parseInt(req.params.id);
-    const agent = await prisma.ss_user.findUnique({ where: { id } });
+    const agent = await prisma.user.findUnique({ where: { id } });
 
     // Fail fast if id is not attributed to an agent
     if (agent.usertype != 1) {
@@ -179,7 +179,7 @@ app.get('/api/dashboard/:id', async (req, res) => {
                 }
             },
             include: {
-                ss_user: {
+                user: {
                     select: {
                         lastname: true,
                         firstname: true,
@@ -221,7 +221,7 @@ app.get('/api/venue/:id', async (req, res) => {
     const id = parseInt(req.params.id);
     const [venue, agent, amenities] = await prisma.$transaction([
         prisma.venue.findUnique({ where: { id } }),
-        prisma.ss_user.findMany({
+        prisma.user.findMany({
             where: {
                 venue: { 
                     some: { id }

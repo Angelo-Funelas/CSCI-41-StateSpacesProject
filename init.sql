@@ -1,4 +1,4 @@
-DROP TABLE SS_USER CASCADE;
+DROP TABLE USER CASCADE;
 DROP TABLE BUILDING;
 DROP TABLE VENUE_AMENITY;
 DROP TABLE RENOVATION_DATE;
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS VENUE (
     capacity integer,
     floor integer,
     floor_area integer,
-    FOREIGN KEY (agent_id) REFERENCES SS_USER(id) ON DELETE SET NULL
+    FOREIGN KEY (agent_id) REFERENCES USER(id) ON DELETE SET NULL
 );
 
 CREATE TABLE IF NOT EXISTS VENUE_AMENITY (
@@ -62,6 +62,6 @@ CREATE TABLE IF NOT EXISTS RESERVATION (
     start_datetime timestamp,
     end_datetime timestamp,
     participant_count integer,
-    FOREIGN KEY (parent_user) REFERENCES SS_USER(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_user) REFERENCES USER(id) ON DELETE CASCADE,
     FOREIGN KEY (parent_venue) REFERENCES VENUE(id) ON DELETE CASCADE
 );

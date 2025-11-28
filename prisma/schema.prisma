@@ -9,14 +9,14 @@ datasource db {
 }
 
 model amenity {
-  id               Int             @id
+  id               Int             @id @default(autoincrement())
   type             String?         @db.VarChar(128)
   item_description String?         @db.VarChar(255)
   venue_amenity    venue_amenity[]
 }
 
 model building {
-  id             Int             @id
+  id             Int             @id @default(autoincrement())
   name           String?         @db.VarChar(255)
   address        String?         @db.VarChar(255)
   managers       User[]          @relation("BuildingManager")
@@ -25,7 +25,7 @@ model building {
 }
 
 model renovation_date {
-  id         Int       @id
+  id         Int       @id @default(autoincrement())
   venue_id   Int?
   begin_date DateTime? @db.Date
   end_date   DateTime? @db.Date
@@ -33,7 +33,7 @@ model renovation_date {
 }
 
 model reservation {
-  id                Int       @id
+  id                Int       @id @default(autoincrement())
   parent_user       Int?
   parent_venue      Int?
   start_datetime    DateTime? @db.Timestamp(6)
@@ -59,7 +59,7 @@ model User {
 }
 
 model venue {
-  id              Int               @id
+  id              Int               @id @default(autoincrement())
   agent_id        Int?
   venue_name      String?           @db.VarChar(255)
   venue_type      String?           @db.VarChar(128)
