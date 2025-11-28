@@ -6,7 +6,7 @@ DROP TABLE RESERVATION;
 DROP TABLE VENUE;
 DROP TABLE AMENITY;
 
-CREATE TABLE IF NOT EXISTS SS_USER (
+CREATE TABLE IF NOT EXISTS USER (
     id integer unique primary key,
     usertype integer,
     lastname varchar(32),
