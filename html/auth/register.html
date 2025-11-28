@@ -20,12 +20,24 @@
         <input type="text" name="firstname" placeholder="First Name" required>
         <input type="text" name="middlename" placeholder="Middle Name" required>
         <input type="date" name="birthdate" placeholder="Birth Day" required>
-        <select name="usertype">
+        <select name="usertype" id="usertype">
             <option value="0">Customer</option>
             <option value="1">Agent</option>
+        </select>
+        <select name="managed_bldg" class="agent-input" style="display: none;">
+            <option value="" selected disabled hidden>Select Managed Building</option>
         </select>
         <input type="submit" value="Submit">
     </form>
     <p>Already have an account? Login <a href="/login">here</a>.</p>
+    <script>
+        const input_usertype = document.getElementById("usertype");
+        const agent_inputs = document.getElementsByClassName("agent-input");
+        input_usertype.addEventListener("change", (e) => {
+            for (const input of agent_inputs) {
+                input.style.display = (e.target.value == 1)?"block":"none";
+            }
+        })
+    </script>
 </body>
 </html>

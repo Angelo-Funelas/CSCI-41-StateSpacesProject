@@ -52,8 +52,8 @@ model User {
   firstname       String        @db.VarChar(32)
   middlename      String        @db.VarChar(32)
   birthdate       DateTime      @db.Date
-  managed_bldg_id Int
-  managed_bldg    building      @relation("BuildingManager", fields: [managed_bldg_id], references: [id])
+  managed_bldg_id Int?
+  managed_bldg    building?      @relation("BuildingManager", fields: [managed_bldg_id], references: [id])
   reservation     reservation[]
   venue           venue[]
 }

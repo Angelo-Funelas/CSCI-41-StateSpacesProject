@@ -1,10 +1,10 @@
-DROP TABLE USER CASCADE;
-DROP TABLE BUILDING;
-DROP TABLE VENUE_AMENITY;
-DROP TABLE RENOVATION_DATE;
-DROP TABLE RESERVATION;
-DROP TABLE VENUE;
-DROP TABLE AMENITY;
+DROP TABLE "User" CASCADE;
+DROP TABLE "building";
+DROP TABLE "venue_amenity";
+DROP TABLE "renovation_date";
+DROP TABLE "reservation";
+DROP TABLE "venue";
+DROP TABLE "amenity";
 
 CREATE TABLE IF NOT EXISTS "building" (
     "id" SERIAL PRIMARY KEY,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS "User" (
     "firstname" VARCHAR(32) NOT NULL,
     "middlename" VARCHAR(32) NOT NULL,
     "birthdate" DATE NOT NULL,
-    "managed_bldg_id" INTEGER NOT NULL,
+    "managed_bldg_id" INTEGER,
     FOREIGN KEY ("managed_bldg_id") REFERENCES "building"("id")
 );
 

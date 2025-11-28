@@ -135,7 +135,8 @@ app.post("/register", async (req, res) => {
         lastname: req.body.lastname,
         firstname: req.body.firstname,
         middlename: req.body.middlename,
-        birthdate: new Date(req.body.birthdate)
+        birthdate: new Date(req.body.birthdate),
+        managed_bldg_id: req.body.managed_bldg,
       },
     });
     console.log(`Registered user: ${validatedUsername} ${validatedPassword}`)
