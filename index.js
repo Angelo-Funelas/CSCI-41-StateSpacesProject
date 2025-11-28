@@ -8,10 +8,16 @@ const app = express();
 const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
+app.set('view-engine', 'ejs')
 
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    res.render('index.ejs');
+});
+app.get('/login', (req, res) => {
+    res.render('login.ejs');
+});
+app.get('/register', (req, res) => {
+    res.render('register.ejs');
 });
 
 // Sample Code for Later
