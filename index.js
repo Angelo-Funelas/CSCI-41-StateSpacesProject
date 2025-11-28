@@ -78,7 +78,7 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false
 });
-app.use(express.static("static"));
+app.use("/static", express.static('static'));
 app.use(sessionMiddleware);
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));

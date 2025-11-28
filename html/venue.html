@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venue</title>
+    <script src="/static/scripts/axios.min.js"></script>
 </head>
 <body>
     <style>
@@ -15,8 +16,11 @@
             display: block;
         }
     </style>
-    <h1>Venue</h1>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed harum, enim aut qui aperiam commodi labore perspiciatis omnis libero hic. Quia expedita exercitationem ex illum deserunt vitae cupiditate maxime dicta.</p>
+    <a href="/">< Dashboard</a>
+    <div id="venue-details">
+        <h1 class="heading"></h1>
+        <p class="capacity"></p>
+    </div>
     <form action="/reserve/" method="post" id="reservation-form">
         <input type="number" name="participant_count" value="1" min="1">
         <input type="date" name="start_datetime" id="date_start_datetime">
@@ -24,11 +28,23 @@
         <input type="submit" value="Make Reservation">
     </form>
     <script>
+        
         const pathname = window.location.pathname;
-        const pathEls = pathname.split("/")
-        const venue_id = pathEls[pathEls.length-1] 
-        const reservation_form = document.getElementById("reservation-form")
-        reservation_form.action = `/reserve/${venue_id}`
+        const pathEls = pathname.split("/");
+        const venue_id = pathEls[pathEls.length-1];
+        const reservation_form = document.getElementById("reservation-form");
+        reservation_form.action = `/reserve/${venue_id}`;
+
+        async function hydrate() {
+            const res = await axios.get(`/api/venue/${venue_id}`);
+            const heading = document.querySelector("#venue-details > .heading");
+            const capacity_el = document.querySelector("#venue-details > .capacity");
+            console.log(res.data)
+            const { venue_name, capacity } = res.data.venue
+            heading.textContent = venue_name;
+            capacity_el.textContent = `Capacity: ${capacity}`;
+        }
+        hydrate();
 
         const today = new Date();
         const year = today.getFullYear();
