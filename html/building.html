@@ -65,38 +65,6 @@
                 const venues = res.data.venues; 
                 venues.sort((a, b) => a.id - b.id);
 
-                const hiddenField = document.createElement('input');
-                hiddenField.type = 'hidden';
-                hiddenField.name = "venue_id";
-                hiddenField.value = venue.id;
-
-                const manage_button = document.createElement("button");
-                manage_button.type = "submit";
-                manage_button.textContent = "Manage";
-                manage_button.disabled = venue.agent_id ? true : false;
-                manage_button.addEventListener("click", () => {
-                    manage_form.action = `/manage/${building_id}?action=add`
-                });
-
-                const unmanage_button = document.createElement("button");
-                unmanage_button.type = "submit";
-                unmanage_button.textContent = "Unmanage";
-                unmanage_button.disabled = venue.agent_id == res.data.user.id ? false : true;
-                unmanage_button.addEventListener("click", () => {
-                    manage_form.action = `/manage/${building_id}?action=remove`
-                });              
-
-                manage_form.appendChild(hiddenField);
-                manage_form.appendChild(manage_button);
-                manage_form.appendChild(unmanage_button);
-
-                const venue_div = document.createElement("div");
-                const venue_name_el = document.createElement("a")
-                venue_name_el.textContent = venue.venue_name
-                venue_name_el.href = `/venue/${venue.id}`
-                venue_div.append(venue_name_el)
-                if (res.data.user.usertype == 1 && res.data.user.managed_bldg_id==res.data.building.id) {
-                    venue_div.appendChild(manage_form);
                 if (venues.length === 0) {
                     venuelistEl.innerHTML = `<li class="text-slate-500 italic">No venues found for this building.</li>`;
                     return;
