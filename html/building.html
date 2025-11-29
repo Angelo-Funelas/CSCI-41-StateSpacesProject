@@ -71,7 +71,9 @@
 
                 const venue_div = document.createElement("div");
                 venue_div.textContent = venue.venue_name
-                venue_div.appendChild(manage_form);
+                if (res.data.user.usertype == 1) {
+                    venue_div.appendChild(manage_form);
+                }
 
                 venuelist_el.appendChild(venue_div);
             });

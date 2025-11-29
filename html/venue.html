@@ -63,18 +63,24 @@
             const { user, venue, amenities, renovation_dates, reservations } = res.data;
             if (user.usertype == 0) reservation_form.style.display = "block";
             participant_count.max = venue.capacity;
-            const { venue_name, venue_type, capacity, floor, floor_area } = venue;
+            const { venue_name, venue_type, capacity, floor, floor_area, buildingId, bldg } = venue;
             heading.textContent = venue_name;
 
             const venue_type_el = document.createElement("p"); 
             const capacity_el = document.createElement("p"); 
             const floor_el = document.createElement("p"); 
             const floor_area_el = document.createElement("p");
+            const bldg_el = document.createElement("p");
+            const bldg_link = document.createElement("a")
+            bldg_el.textContent = "Building: "
+            bldg_link.href = `/building/${buildingId}`
+            bldg_link.textContent = bldg.name
             venue_type_el.textContent = `Venue Type: ${venue_type}`
             capacity_el.textContent = `Capacity: ${capacity}`
             floor_el.textContent = `Floor: ${floor}`
             floor_area_el.textContent = `Floor Area: ${floor_area}sqm`
-            desc_el.append(venue_type, capacity_el, floor_el, floor_area_el)
+            bldg_el.append(bldg_link)
+            desc_el.append(venue_type, capacity_el, floor_el, floor_area_el, bldg_el)
             
             fillSchedule(renovation_dates.concat(reservations))
         }
