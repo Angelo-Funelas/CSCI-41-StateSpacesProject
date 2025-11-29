@@ -3,58 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard - State Spaces</title>
+    <link href="/static/output.css" rel="stylesheet"/>
     <script src="/static/scripts/axios.min.js"></script>
     <script src="/static/scripts/essentials.js"></script>
-    <link rel="stylesheet" href="/static/styles/style.css">
 </head>
-<body>
-    <nav>
-        <h1>Dashboard</h1>
-        <a href="/logout">logout</a>
-    </nav>
-    <main>
-        <h3 id="welcome">Welcome</h3>
-        <div id="details">
+<body class="bg-slate-950 text-slate-300 min-h-screen font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
 
+    <nav class="fixed top-0 left-0 w-full h-16 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 z-50">
+        <div class="max-w-7xl mx-auto px-6 md:px-10 h-full flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-xl font-serif font-bold text-slate-100 tracking-wide hover:text-emerald-400 transition-colors">
+                    State Spaces
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4 md:gap-6">
+                <a href="/logout" class="text-sm font-medium text-slate-400 hover:text-red-400 transition-colors duration-200">
+                    Logout
+                </a>
+            </div>
         </div>
-        <h2 id="title"></h2>
-        <ul id="table-entries">
-        </ul>
+    </nav>
+
+    <main class="w-full min-h-screen pt-48 pb-12 px-6">
+        <div class="max-w-4xl mx-auto">
+            
+            <header class="mb-8">
+                <h3 id="welcome" class="text-3xl md:text-4xl font-bold text-slate-100 font-serif mb-2">Welcome</h3>
+            </header>
+
+            <div id="details" class="mb-12">
+                </div>
+
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                <h2 id="title" class="text-xl text-emerald-400 font-light tracking-[0.2em] uppercase opacity-90 font-serif">
+                    Loading...
+                </h2>
+            </div>
+
+            <ul id="table-entries" class="space-y-3">
+            </ul>
+        </div>
     </main>
+
     <script>
         const welcome = document.getElementById("welcome");
         const title = document.getElementById("title");
         const details = document.getElementById("details");
         const table = document.getElementById("table-entries");
-        function setBldgDetails(building) {
-            const name = document.createElement("p")
-            const address = document.createElement("p")
-            name.innerHTML = `Managed Building: <a href=\"/building/${building.id}\">${building.name}</a>`
-            address.textContent = `Address: ${building.address}`
-            details.append(name, address);
-        }
-        async function hydrate() {
-            const res = await axios.get(`/api/dashboard`);
-            
-            const { user, building, venues, reservations } = res.data;
-            if (user.usertype==1) setBldgDetails(building)
-            const firstname = user.firstname;
 
-            welcome.textContent = `Welcome ${firstname.split(" ")[0]}`;
-            title.textContent = (user.usertype == 1)?"Managed Venues":"Reservations";
-            const entries = (user.usertype == 1)?venues:reservations;
-            for (const entry of entries) {
-                const entry_el = document.createElement("li");
-                const link_el = document.createElement("a");
-                link_el.href = `/venue/${entry.parent_venue || entry.id}`
-                link_el.textContent = entry.venue_name || entry.venue.venue_name;
-                if (user.usertype == 0) link_el.textContent += ` ${formatDateStr(entry.start_datetime)} - ${formatDateStr(entry.end_datetime)}`
-                entry_el.append(link_el)
-                table.append(entry_el)
+        function setBldgDetails(building) {
+            const container = document.createElement("div");
+            container.className = "p-8 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden";
+
+            const labelClass = "block text-xs font-bold text-emerald-500 uppercase tracking-[0.15em] mb-2";
+            const valueClass = "text-3xl md:text-4xl font-serif font-bold text-slate-100 leading-tight";
+            
+            container.innerHTML = `
+                <div class="relative z-10 flex flex-col gap-8">
+                    
+                    <div>
+                        <span class="${labelClass}">
+                            Managed Building
+                        </span>
+                        <a href="/building/${building.id}" class="${valueClass} hover:text-emerald-400 transition-colors border-b-2 border-transparent hover:border-emerald-400/30">
+                            ${building.name}
+                        </a>
+                    </div>
+
+                    <div>
+                        <span class="${labelClass}">
+                            Location
+                        </span>
+                        <p class="${valueClass}">
+                            ${building.address}
+                        </p>
+                    </div>
+
+                </div>
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px] pointer-events-none"></div>
+            `;
+
+            details.innerHTML = "";
+            details.append(container);
+        }
+
+        async function hydrate() {
+            try {
+                const res = await axios.get(`/api/dashboard`);
+                
+                const { user, building, venues, reservations } = res.data;
+                
+                const firstname = user.firstname;
+                welcome.textContent = `Welcome back, ${firstname.split(" ")[0]}`;
+
+                if (user.usertype == 1 && building) {
+                    setBldgDetails(building);
+                }
+
+                title.textContent = (user.usertype == 1) ? "Managed Venues" : "Your Reservations";
+
+                const entries = (user.usertype == 1) ? venues : reservations;
+                
+                table.innerHTML = "";
+
+                if (entries.length === 0) {
+                    table.innerHTML = `<li class="text-slate-500 italic">No entries found.</li>`;
+                    return;
+                }
+
+                for (const entry of entries) {
+                    const entry_el = document.createElement("li");
+                    
+                    entry_el.className = "group flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-emerald-500/30 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300";
+
+                    const link_el = document.createElement("a");
+                    link_el.href = `/venue/${entry.parent_venue || entry.id}`;
+                    link_el.className = "font-medium text-slate-200 group-hover:text-emerald-400 transition-colors text-lg";
+                    link_el.textContent = entry.venue_name || entry.venue.venue_name;
+
+                    entry_el.append(link_el);
+
+                    if (user.usertype == 0) {
+                        const dateContainer = document.createElement("div");
+                        dateContainer.className = "text-slate-400 font-mono text-sm mt-2 md:mt-0";
+                        dateContainer.textContent = `${formatDateStr(entry.start_datetime)} - ${formatDateStr(entry.end_datetime)}`;
+                        entry_el.append(dateContainer);
+                    }
+
+                    table.append(entry_el);
+                }
+            } catch (error) {
+                console.error(error);
+                title.textContent = "Error loading dashboard";
+                title.classList.add("text-red-500");
             }
         }
+
         hydrate();
+
         function formatDateStr(date) {
             date = new Date(date);
 
