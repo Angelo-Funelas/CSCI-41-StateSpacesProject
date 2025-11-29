@@ -293,22 +293,24 @@ app.post('/manage/:building_id', async (req, res) => {
     if (req.user.managed_bldg_id !== building_id) return res.status(401).json({ error: "User is not assigned to the building" });
     try {
         const id = parseInt(req.body.venue_id);
-        if (action == "manage") {
+        if (action == "add") {
             await prisma.venue.update({
                 where: { id },
                 data: { agent_id: req.user.id }
             });
+            return res.redirect(`/building/${building_id}?msg=Successfully+added+building`);
         }
-        else if (action == "unmanage") {
+        else if (action == "remove") {
             const venue = await prisma.venue.findUnique({ where: { id } });
-            if (venue.agent_id == req.user.id)
+            if (venue.agent_id == req.user.id) {
                 await prisma.venue.update({
                     where: { id },
                     data: { agent_id: null}
                 });
+                return res.redirect(`/building/${building_id}?msg=Successfully+removed+building`);
+            }
             else return res.status(401).json({ error: "You were not managing this venue" })
         }
-        return res.redirect(`/building/${building_id}?msg=Successfully+added+building`);
     } catch (err) {
         console.error(err);
         return res.redirect(`/building/${building_id}?msg=${encodeURIComponent(err)}`);

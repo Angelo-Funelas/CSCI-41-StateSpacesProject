@@ -52,7 +52,7 @@
                 manage_button.textContent = "Manage";
                 manage_button.disabled = venue.agent_id ? true : false;
                 manage_button.addEventListener("click", () => {
-                    manage_form.action = `/manage/${building_id}?action=manage`
+                    manage_form.action = `/manage/${building_id}?action=add`
                 });
 
                 const unmanage_button = document.createElement("button");
@@ -60,7 +60,7 @@
                 unmanage_button.textContent = "Unmanage";
                 unmanage_button.disabled = venue.agent_id ? false : true;
                 unmanage_button.addEventListener("click", () => {
-                    manage_form.action = `/manage/${building_id}?action=unmanage`
+                    manage_form.action = `/manage/${building_id}?action=remove`
                 });              
 
                 manage_form.appendChild(hiddenField);
