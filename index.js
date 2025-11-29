@@ -137,7 +137,7 @@ app.post("/register", async (req, res) => {
         firstname: req.body.firstname,
         middlename: req.body.middlename,
         birthdate: new Date(req.body.birthdate),
-        managed_bldg_id: req.body.managed_bldg,
+        managed_bldg_id: parseInt(req.body.managed_bldg),
       },
     });
     console.log(`Registered user: ${validatedUsername} ${validatedPassword}`)
@@ -261,6 +261,10 @@ app.get('/api/venue/:id', async (req, res) => {
         ]);
         res.json({ ...base, renovation_dates, reservation_dates });
     }
+});
+app.get('/api/buildings', async (req, res) => {
+    const data = await prisma.building.findMany();
+    res.json(data);
 });
 app.get('/api/building/:id', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(400).send(`User is not authenticated!`);

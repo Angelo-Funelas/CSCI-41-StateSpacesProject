@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login to State Spaces</title>
+    <script src="/static/scripts/axios.min.js"></script>
 </head>
 <body>
     <style>
@@ -24,20 +25,28 @@
             <option value="0">Customer</option>
             <option value="1">Agent</option>
         </select>
-        <select name="managed_bldg" class="agent-input" style="display: none;">
+        <select id="select_bldg" name="managed_bldg" class="agent-input" style="display: none;">
             <option value="" selected disabled hidden>Select Managed Building</option>
         </select>
         <input type="submit" value="Submit">
     </form>
     <p>Already have an account? Login <a href="/login">here</a>.</p>
     <script>
-        const input_usertype = document.getElementById("usertype");
-        const agent_inputs = document.getElementsByClassName("agent-input");
-        input_usertype.addEventListener("change", (e) => {
-            for (const input of agent_inputs) {
-                input.style.display = (e.target.value == 1)?"block":"none";
-            }
-        })
+        async function hydrate(params) {
+            const res = await axios.get('/api/buildings');
+            const input_usertype = document.getElementById("usertype");
+            const agent_inputs = document.getElementsByClassName("agent-input");
+            const select_bldg = document.getElementById("select_bldg");
+
+            res.data.map(bldg => select_bldg.add(new Option(bldg.name, bldg.id), undefined)); 
+            input_usertype.addEventListener("change", (e) => {
+                for (const input of agent_inputs) {
+                    input.style.display = (e.target.value == 1)?"block":"none";
+                }
+            });
+        }
+        hydrate();
+        
     </script>
 </body>
 </html>
