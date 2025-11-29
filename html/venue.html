@@ -48,6 +48,7 @@
         reservation_form.action = `/reserve/${venue_id}`;
 
         function fillSchedule(dates) {
+            dates.sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime());
             for (const date of dates) {
                 const entry_el = document.createElement("li");
                 const status = (date.parent_user)?"RESERVED":"RENOVATION";
