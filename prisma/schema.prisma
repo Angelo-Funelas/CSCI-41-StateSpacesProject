@@ -9,75 +9,75 @@ datasource db {
 }
 
 model amenity {
-  id               Int             @id
-  type             String?         @db.VarChar(128)
+  id               Int             @id @default(autoincrement())
+  type             String          @db.VarChar(128)
   item_description String?         @db.VarChar(255)
   venue_amenity    venue_amenity[]
 }
 
 model building {
-  id             Int             @id
-  name           String?         @db.VarChar(255)
-  address        String?         @db.VarChar(255)
+  id             Int             @id @default(autoincrement())
+  name           String          @db.VarChar(255)
+  address        String          @db.VarChar(255)
   managers       User[]          @relation("BuildingManager")
   venues         venue[]
   venueAmenities venue_amenity[]
 }
 
 model renovation_date {
-  id         Int       @id
-  venue_id   Int?
-  begin_date DateTime? @db.Date
-  end_date   DateTime? @db.Date
-  venue      venue?    @relation(fields: [venue_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id             Int       @id @default(autoincrement())
+  venue_id       Int
+  start_datetime DateTime  @db.Date
+  end_datetime   DateTime  @db.Date
+  venue          venue     @relation(fields: [venue_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model reservation {
-  id                Int       @id
-  parent_user       Int?
-  parent_venue      Int?
-  start_datetime    DateTime? @db.Timestamp(6)
-  end_datetime      DateTime? @db.Timestamp(6)
-  participant_count Int?
-  User              User?     @relation(fields: [parent_user], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  venue             venue?    @relation(fields: [parent_venue], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                Int       @id @default(autoincrement())
+  parent_user       Int
+  parent_venue      Int
+  start_datetime    DateTime  @db.Timestamp(6)
+  end_datetime      DateTime  @db.Timestamp(6)
+  participant_count Int
+  User              User      @relation(fields: [parent_user], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  venue             venue     @relation(fields: [parent_venue], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model User {
   id              Int           @id @default(autoincrement())
-  usertype        Int?
+  usertype        Int           @default(0)
   username        String        @unique @db.VarChar(255)
   password        String        @db.VarChar(255)
-  lastname        String?       @db.VarChar(32)
-  firstname       String?       @db.VarChar(32)
-  middlename      String?       @db.VarChar(32)
-  birthdate       DateTime?     @db.Date
+  lastname        String        @db.VarChar(32)
+  firstname       String        @db.VarChar(32)
+  middlename      String        @db.VarChar(32)
+  birthdate       DateTime      @db.Date
   managed_bldg_id Int?
-  managed_bldg    building?     @relation("BuildingManager", fields: [managed_bldg_id], references: [id])
+  managed_bldg    building?      @relation("BuildingManager", fields: [managed_bldg_id], references: [id])
   reservation     reservation[]
   venue           venue[]
 }
 
 model venue {
-  id              Int               @id
+  id              Int               @id @default(autoincrement())
   agent_id        Int?
-  venue_name      String?           @db.VarChar(255)
-  venue_type      String?           @db.VarChar(128)
-  capacity        Int?
-  floor           Int?
-  floor_area      Int?
+  venue_name      String            @db.VarChar(255)
+  venue_type      String            @db.VarChar(128)
+  capacity        Int
+  floor           Int
+  floor_area      Int
   renovation_date renovation_date[]
   reservation     reservation[]
   User            User?             @relation(fields: [agent_id], references: [id], onUpdate: NoAction)
   venue_amenity   venue_amenity[]
-  bldg            building?         @relation(fields: [buildingId], references: [id])
-  buildingId      Int?
+  bldg            building         @relation(fields: [buildingId], references: [id])
+  buildingId      Int
 }
 
 model venue_amenity {
   amenity_id Int
   venue_id   Int
-  quantity   Int?     @default(1)
+  quantity   Int      @default(1)
   amenity    amenity  @relation(fields: [amenity_id], references: [id], onUpdate: NoAction)
   venue      venue    @relation(fields: [venue_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   bldg_id    Int

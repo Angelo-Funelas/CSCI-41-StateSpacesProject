@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login to State Spaces</title>
+    <script src="/static/scripts/axios.min.js"></script>
 </head>
 <body>
     <style>
@@ -13,11 +14,42 @@
     </style>
     <h1>Register</h1>
     <form action="" method="POST">
-        <input type="text" name="username" placeholder="Username">
-        <input type="password" name="password" placeholder="Password">
-        <input type="password" name="confirmPassword" placeholder="Confirm Password">
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+        <input type="text" name="lastname" placeholder="Last Name" required>
+        <input type="text" name="firstname" placeholder="First Name" required>
+        <input type="text" name="middlename" placeholder="Middle Name" required>
+        <input type="date" name="birthdate" placeholder="Birth Day" required>
+        <select name="usertype" id="usertype">
+            <option value="0">Customer</option>
+            <option value="1">Agent</option>
+        </select>
+        <select id="select_bldg" name="managed_bldg" class="agent-input" style="display: none;">
+            <option value="" selected disabled hidden>Select Managed Building</option>
+        </select>
         <input type="submit" value="Submit">
     </form>
     <p>Already have an account? Login <a href="/login">here</a>.</p>
+    <script>
+        async function hydrate(params) {
+            const res = await axios.get('/api/buildings');
+            const input_usertype = document.getElementById("usertype");
+            const agent_inputs = document.getElementsByClassName("agent-input");
+            const select_bldg = document.getElementById("select_bldg");
+
+            res.data.map(bldg => select_bldg.add(new Option(bldg.name, bldg.id), undefined)); 
+            input_usertype.addEventListener("change", (e) => {
+                for (const input of agent_inputs) {
+                    input.style.display = (e.target.value == 1)?"block":"none";
+                }
+                if (e.target.value == 0) {
+                    select_bldg.selectedIndex = 0;
+                }
+            });
+        }
+        hydrate();
+        
+    </script>
 </body>
 </html>

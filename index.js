@@ -78,12 +78,13 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false
 });
-app.use(express.static("static"));
+app.use("/static", express.static('static'));
 app.use(sessionMiddleware);
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json())
 
+// USER MANAGEMENT
 app.get('/', (req, res) => {
     if (!req.isAuthenticated()) return res.redirect(`/login`);
     res.sendFile("html/index.html", {root: path.join(__dirname)});
@@ -116,6 +117,7 @@ app.get("/logout", (req, res, next) => {
     });
 });
 app.get('/register', (req, res) => {
+    if (req.isAuthenticated()) return res.redirect(`/`);
     res.sendFile("html/auth/register.html", {root: path.join(__dirname)});
 });
 app.post("/register", async (req, res) => {
@@ -129,7 +131,13 @@ app.post("/register", async (req, res) => {
     await prisma.user.create({
       data: {
         username: validatedUsername,
-        password: hashedPassword
+        password: hashedPassword,
+        usertype: parseInt(req.body.usertype),
+        lastname: req.body.lastname,
+        firstname: req.body.firstname,
+        middlename: req.body.middlename,
+        birthdate: new Date(req.body.birthdate),
+        managed_bldg_id: parseInt(req.body.managed_bldg),
       },
     });
     console.log(`Registered user: ${validatedUsername} ${validatedPassword}`)
@@ -143,122 +151,212 @@ app.post("/register", async (req, res) => {
   }
 })
 
-/**
- * For getting dashboard content.
- * 
- * TODO: implement getting info on agent's buildings
- * NOTE: waiting for db modification
- */
-app.get('/api/dashboard/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
-    const agent = await prisma.ss_user.findUnique({ where: { id } });
+// USER ACTIONS (manage building, reserve venue)
+app.get('/venue/:id', (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect(`/login`);
+    res.sendFile("html/venue.html", {root: path.join(__dirname)});
+});
+app.get('/building/:id', (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect(`/login`);
+    res.sendFile("html/building.html", {root: path.join(__dirname)});
+});
 
-    // Fail fast if id is not attributed to an agent
-    if (agent.usertype != 1) {
-        res.status(400).send("User is not an agent!");
-        return
-    }
+// API Endpoints
+app.get('/api/dashboard', async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(400).send(`User is not authenticated!`);
+    const id = req.user.id;
+    const user = await prisma.user.findUnique({
+        where: { id },
+        include: {
+            password: false
+        }
+    });
 
-    const [buildings, venues, reservations, renovations] = await prisma.$transaction([
-        prisma.building.findMany(),
-        prisma.venue.findMany({
-            where: { agent_id: id },
-            select: {
-                id: true,
-                venue_name: true,
-                venue_type: true
-            }
-        }),
-        prisma.reservation.findMany({
-            where: {
-                venue: {
-                    agent_id: id
-                },
-                start_datetime: {
-                    gte: new Date()
-                }
-            },
+    if (user.usertype != 1) {
+        const reservations = await prisma.reservation.findMany({
+            where: { parent_user: id },
             include: {
-                ss_user: {
+                parent_user: false,
+                venue: {
                     select: {
-                        lastname: true,
-                        firstname: true,
-                        middlename: true
+                        venue_name: true,
+                        venue_type: true, 
+                    }
+                } 
+            }
+        });
+        const data = { user, reservations };
+        res.json(data);
+    }
+    else {
+        const [buildings, venues, reservations] = await prisma.$transaction([
+            prisma.building.findMany({
+                where: { id: user.managed_bldg_id },
+            }),
+            prisma.venue.findMany({
+                where: { agent_id: id },
+                select: {
+                    id: true,
+                    venue_name: true,
+                    venue_type: true
+                }
+            }),
+            prisma.reservation.findMany({
+                where: {
+                    venue: {
+                        agent_id: id
+                    },
+                },
+                include: {
+                    User: {
+                        select: {
+                            lastname: true,
+                            firstname: true,
+                            middlename: true
+                        }
+                    },
+                    venue: {
+                        select: { venue_name: true }
                     }
                 },
-                venue: {
-                    select: { venue_name: true }
-                }
-            },
-            take: 5
-        }),
-        prisma.renovation_date.findMany({
-            where: {
-                venue: {
-                    agent_id: id
-                },
-                begin_date: {
-                    gte: new Date()
-                }
-            },
-            include: {
-                venue: {
-                    select: { venue_name: true }
-                }
-            },
-            take: 5
-        })
-    ]);
+                take: 5
+            })
+        ]);
 
-    const data = { agent, buildings, venues, reservations, renovations };
-    res.json(data);
+        const data = { user, buildings, venues, reservations };
+        res.json(data);
+    }
 });
-
-/**
- * For getting venue details.
- */
 app.get('/api/venue/:id', async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(400).send(`User is not authenticated!`);
     const id = parseInt(req.params.id);
-    const [venue, agent, amenities] = await prisma.$transaction([
+    const [venue, amenities] = await prisma.$transaction([
         prisma.venue.findUnique({ where: { id } }),
-        prisma.ss_user.findMany({
-            where: {
-                venue: { 
-                    some: { id }
-                }
-            },
-            include: {
-                id: false,
-                usertype: false,
-                birthdate: false
-            }
-        }),
         prisma.venue_amenity.findMany({
-            where: { venue_id: id },
+            where: {
+                venue_id: id
+            },
             include: {
                 venue_id: false,
-                amenity_id: false,
-                amenity: true
+                amenity: {
+                    include: { id: false }
+                }
             }
         })
     ]);
+    
+    const base = { venue, amenities };
+    if (req.user.usertype == 1) res.json(base);
+    else {
+        const [renovation_dates, reservation_dates] = await prisma.$transaction([
+            prisma.renovation_date.findMany({
+                where: {
+                    venue_id: id
+                }
+            }),
+            prisma.reservation.findMany({
+                where: { parent_venue: id },
+                include: { parent_venue: false }
+            }),
+        ]);
+        res.json({ ...base, renovation_dates, reservation_dates });
+    }
+});
+app.get('/api/buildings', async (req, res) => {
+    const data = await prisma.building.findMany();
+    res.json(data);
+});
+app.get('/api/building/:id', async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(400).send(`User is not authenticated!`);
+    const id = parseInt(req.params.id);
+    const building = await prisma.building.findUnique({
+        where: { id }
+    });
+    const venues = await prisma.venue.findMany({
+        where: { buildingId: id },
+        include: { buildingId: false }
+    });
 
-    const data = { venue, agent, amenities };
+    const data = { building, venues };
     res.json(data);
 });
 
-/**
- * For getting building details.
- * 
- * TODO: implement
- * NOTE: waiting for db modification
- */
-app.get('/api/building/:id', async (req, res) => {
-    const id = parseInt(req.params.id);
-    const data = await prisma.building.findMany({
-        where: { id: id }
-    });
-    res.json(data);
+// POST Requests (manage building, reserve venue)
+app.post('/manage/:building_id', async (req, res) => {
+    const building_id = parseInt(req.params.building_id);
+    if (!req.isAuthenticated()) return res.status(401).json({ error: "User not authenticated" });
+    if (req.user.usertype !== 1) return res.status(401).json({ error: "User not an agent" });
+    if (req.user.managed_bldg_id !== building_id) return res.status(401).json({ error: "User is not assigned to the building" });
+    try {
+        Object.values(req.body).map(async venue_id => {
+            const id = parseInt(venue_id);
+            await prisma.venue.updateMany({
+                where: { id },
+                data: { agent_id: req.user.id }
+            });
+        });
+        return res.redirect(`/building/${building_id}?msg=Successfully+added+building`);
+    } catch (err) {
+        console.error(err);
+        return res.redirect(`/manage/${building_id}?msg=${encodeURIComponent(err)}`);
+    }
+});
+function checkDateConflicts(start_datetime, end_datetime, unavailableRanges) {
+    const start = new Date(start_datetime).getTime();
+    const end = new Date(end_datetime).getTime();
+    if (isNaN(start) || isNaN(end) || start > end) throw new Error("Invalid or inverted date range provided for 'newRange'.");
+    for (const existingRange of unavailableRanges) {
+        const existingStart = new Date(existingRange.start_datetime).getTime();
+        const existingEnd = new Date(existingRange.end_datetime).getTime();
+
+        if (isNaN(existingStart) || isNaN(existingEnd)) continue;
+        const noConflict = (end < existingStart) || (start > existingEnd);
+
+        if (noConflict) continue;
+        throw new Error(`Reservation has conflicts`);
+    }
+    return true;
+}
+app.post('/reserve/:venue_id', async (req, res) => {
+    const venue_id = parseInt(req.params.venue_id);
+    if (!req.isAuthenticated()) return res.status(401).json({ error: "User not authenticated" });
+    if (req.user.usertype !== 0) return res.status(401).json({ error: "User not customer" });
+    try {
+        console.log(req.body)
+        const { start_datetime, end_datetime, participant_count } = req.body;
+        const venue = await prisma.venue.findUnique({ where: { id:venue_id } })
+        const renovation_dates = await prisma.renovation_date.findMany({
+            where: {
+                venue_id: venue_id
+            }
+        });
+        const reservation_dates = await prisma.reservation.findMany({
+            where: {
+                parent_venue: venue_id
+            }
+        });
+        const unavailable_dates = renovation_dates.concat(reservation_dates)
+        checkDateConflicts(start_datetime, end_datetime, unavailable_dates)
+        await prisma.reservation.create({
+            data: {
+                parent_user: req.user.id,
+                parent_venue: venue_id,
+                start_datetime: new Date(start_datetime),
+                end_datetime: new Date(end_datetime),
+                participant_count: parseInt(participant_count)
+            },
+        });
+        console.log({
+            reqbody: req.body,
+            venue,
+            renovation_dates,
+            reservation_dates
+        });
+        return res.redirect(`/venue/${venue_id}?msg=Successfully+reserved+venue`);
+    } catch(err) {
+        console.error(err)
+        return res.redirect(`/venue/${venue_id}?msg=${encodeURIComponent(err)}`);
+    }
 });
 
 app.listen(PORT, () => {

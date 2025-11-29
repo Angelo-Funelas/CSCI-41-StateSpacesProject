@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venue</title>
+    <script src="/static/scripts/axios.min.js"></script>
+</head>
+<body>
+    <style>
+        .hidden {
+            display: none;
+            visibility: hidden;
+        }
+        input {
+            display: block;
+        }
+    </style>
+    <a href="/">< Dashboard</a>
+    <div id="venue-details">
+        <h1 class="heading"></h1>
+        <p class="capacity"></p>
+    </div>
+    <form action="/reserve/" method="post" id="reservation-form">
+        <input type="number" name="participant_count" value="1" min="1">
+        <input type="date" name="start_datetime" id="date_start_datetime">
+        <input type="date" name="end_datetime" id="date_end_datetime">
+        <input type="submit" value="Make Reservation">
+    </form>
+    <script>
+        
+        const pathname = window.location.pathname;
+        const pathEls = pathname.split("/");
+        const venue_id = pathEls[pathEls.length-1];
+        const reservation_form = document.getElementById("reservation-form");
+        reservation_form.action = `/reserve/${venue_id}`;
+
+        async function hydrate() {
+            const res = await axios.get(`/api/venue/${venue_id}`);
+            const heading = document.querySelector("#venue-details > .heading");
+            const capacity_el = document.querySelector("#venue-details > .capacity");
+            console.log(res.data)
+            const { venue_name, capacity } = res.data.venue
+            heading.textContent = venue_name;
+            capacity_el.textContent = `Capacity: ${capacity}`;
+        }
+        hydrate();
+
+        const today = new Date();
+        const year = today.getFullYear();
+        let month = today.getMonth() + 1;
+        let day = today.getDate();
+        month = month < 10 ? '0' + month : month;
+        day = day < 10 ? '0' + day : day;
+
+        const formattedToday = `${year}-${month}-${day}`;
+
+        // Set the min attribute of the date input
+        const date_start_datetime = document.getElementById("date_start_datetime");
+        const date_end_datetime = document.getElementById("date_end_datetime");
+        date_start_datetime.value = formattedToday;
+        date_end_datetime.value = formattedToday;
+        date_start_datetime.setAttribute("min", formattedToday);
+        date_end_datetime.setAttribute("min", formattedToday);
+        date_start_datetime.addEventListener("change", (e) => {
+            const start_date = new Date(date_start_datetime.value);
+            const end_date = new Date(date_end_datetime.value);
+            if (start_date>end_date) {
+                date_end_datetime.value = date_start_datetime.value;
+            }
+        })
+        date_start_datetime.addEventListener("change", (e) => {
+            const start_date = new Date(e.target.value);
+            const start_year = start_date.getFullYear();
+            let start_month = start_date.getMonth() + 1;
+            let start_day = start_date.getDate();
+            start_month = start_month < 10 ? '0' + start_month : start_month;
+            start_day = start_day < 10 ? '0' + start_day : start_day;
+            const formattedStart = `${start_year}-${start_month}-${start_day}`;
+            date_end_datetime.setAttribute("min", formattedStart);
+        })
+    </script>
+</body>
+</html>
