@@ -214,7 +214,14 @@ app.get('/api/venue/:id', async (req, res) => {
     const id = parseInt(req.params.id);
     const [user, venue, amenities, renovation_dates, reservations] = await prisma.$transaction([
         prisma.user.findUnique({ where: { id: req.user.id }, include: {password: false} }),
-        prisma.venue.findUnique({ where: { id } }),
+        prisma.venue.findUnique({
+            where: {
+                id
+            },
+            include: {
+                bldg: true
+            }
+        }),
         prisma.venue_amenity.findMany({
             where: {
                 venue_id: id
@@ -260,7 +267,7 @@ app.get('/api/building/:id', async (req, res) => {
         include: { buildingId: false }
     });
 
-    const data = { user: req.user.id, building, venues };
+    const data = { user: {...req.user, password: null}, building, venues };
     res.json(data);
 });
 

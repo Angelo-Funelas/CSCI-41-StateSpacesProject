@@ -45,6 +45,9 @@
             <ul id="table-entries" class="space-y-3">
             </ul>
         </div>
+        <h2>State Spaces Buildings</h2>
+        <ul id="building-entries">
+        </ul>
     </main>
 
     <script>
@@ -53,6 +56,7 @@
         const details = document.getElementById("details");
         const table = document.getElementById("table-entries");
 
+        const building_entries = document.getElementById("building-entries");
         function setBldgDetails(building) {
             const container = document.createElement("div");
             container.className = "p-8 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden";
@@ -90,6 +94,17 @@
             details.append(container);
         }
 
+        async function loadBuildings() {
+            const res = await axios.get(`/api/buildings`);
+            for (const bldg of res.data) {
+                const li_el = document.createElement("li")
+                const link_el = document.createElement("a");
+                link_el.textContent = bldg.name
+                link_el.href = `/building/${bldg.id}`
+                li_el.append(link_el)
+                building_entries.append(li_el)
+            }
+        }
         async function hydrate() {
             try {
                 const res = await axios.get(`/api/dashboard`);
@@ -135,6 +150,7 @@
 
                     table.append(entry_el);
                 }
+            loadBuildings();
             } catch (error) {
                 console.error(error);
                 title.textContent = "Error loading dashboard";
