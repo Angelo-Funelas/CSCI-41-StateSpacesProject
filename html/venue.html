@@ -21,7 +21,8 @@
     <a href="/dashboard">< Dashboard</a>
     <div id="venue-details">
         <h1 class="heading"></h1>
-        <p class="capacity"></p>
+        <div class="description">
+        </div>
     </div>
     <form action="/reserve/" method="post" id="reservation-form" style="display: none;">
         <input type="number" name="participant_count" id="participant-count" value="1" min="1">
@@ -44,7 +45,7 @@
         const participant_count = document.getElementById("participant-count");
         const schedule_entries = document.getElementById("schedule-entries");
         const heading = document.querySelector("#venue-details > .heading");
-        const capacity_el = document.querySelector("#venue-details > .capacity");
+        const desc_el = document.querySelector("#venue-details > .description");
         reservation_form.action = `/reserve/${venue_id}`;
 
         function fillSchedule(dates) {
@@ -62,9 +63,19 @@
             const { user, venue, amenities, renovation_dates, reservations } = res.data;
             if (user.usertype == 0) reservation_form.style.display = "block";
             participant_count.max = venue.capacity;
-            const { venue_name, capacity } = venue;
+            const { venue_name, venue_type, capacity, floor, floor_area } = venue;
             heading.textContent = venue_name;
-            capacity_el.textContent = `Capacity: ${capacity}`;
+
+            const venue_type_el = document.createElement("p"); 
+            const capacity_el = document.createElement("p"); 
+            const floor_el = document.createElement("p"); 
+            const floor_area_el = document.createElement("p");
+            venue_type_el.textContent = `Venue Type: ${venue_type}`
+            capacity_el.textContent = `Capacity: ${capacity}`
+            floor_el.textContent = `Floor: ${floor}`
+            floor_area_el.textContent = `Floor Area: ${floor_area}sqm`
+            desc_el.append(venue_type, capacity_el, floor_el, floor_area_el)
+            
             fillSchedule(renovation_dates.concat(reservations))
         }
         hydrate();
