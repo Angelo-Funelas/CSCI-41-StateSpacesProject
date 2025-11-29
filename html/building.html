@@ -15,23 +15,17 @@
             visibility: hidden;
         }
     </style>
-    <a href="/dashboard">< Dashboard</a>
+    <a href="/">< Dashboard</a>
     <div id="building-details">
         <h1 class="heading"></h1>
         <p class="address"></p>
-    </div>
-    <form action="/manage/" method="post" id="manage-building">
         <p>Venues:</p>
         <div id="venues"></div><br>
-        <button type="submit">Submit</button>
-    </form>
+    </div>
     <script>
         const pathname = window.location.pathname;
         const pathEls = pathname.split("/");
         const building_id = pathEls[pathEls.length-1];
-
-        const venue_form = document.getElementById("manage-building");
-        venue_form.action = `/manage/${building_id}`;
 
         async function hydrate() {
             const res = await axios.get(`/api/building/${building_id}`);
@@ -44,8 +38,27 @@
             heading.textContent = building_name;
             address_el.textContent = building_address;
             res.data.venues.map(venue => {
-                venuelist_el.insertAdjacentHTML("beforeend", `<input type="checkbox" id=${venue.id} name=checkbox_${venue.id} value=${venue.id}>`);
-                venuelist_el.insertAdjacentHTML("beforeend", `<label for=${venue.id}>${venue.venue_name}</label><br>`);
+                const manage_button = document.createElement("button");
+                manage_button.type = "submit";
+                manage_button.textContent = "Manage";
+                manage_button.disabled = venue.agent_id ? true : false;
+                
+                const hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = "venue_id";
+                hiddenField.value = venue.id;
+                
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/manage/${building_id}`;
+                form.appendChild(hiddenField);
+                form.appendChild(manage_button);
+
+                const venue_div = document.createElement("div");
+                venue_div.textContent = venue.venue_name
+                venue_div.appendChild(form);
+
+                venuelist_el.appendChild(venue_div);
             });
         }
         hydrate();

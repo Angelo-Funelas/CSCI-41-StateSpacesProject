@@ -290,19 +290,18 @@ app.post('/manage/:building_id', async (req, res) => {
     if (req.user.usertype !== 1) return res.status(401).json({ error: "User not an agent" });
     if (req.user.managed_bldg_id !== building_id) return res.status(401).json({ error: "User is not assigned to the building" });
     try {
-        Object.values(req.body).map(async venue_id => {
-            const id = parseInt(venue_id);
-            await prisma.venue.updateMany({
-                where: { id },
-                data: { agent_id: req.user.id }
-            });
+        const id = parseInt(req.body.venue_id);
+        await prisma.venue.update({
+            where: { id },
+            data: { agent_id: req.user.id }
         });
         return res.redirect(`/building/${building_id}?msg=Successfully+added+building`);
     } catch (err) {
         console.error(err);
-        return res.redirect(`/manage/${building_id}?msg=${encodeURIComponent(err)}`);
+        return res.redirect(`/building/${building_id}?msg=${encodeURIComponent(err)}`);
     }
 });
+
 function checkDateConflicts(start_datetime, end_datetime, unavailableRanges) {
     const start = new Date(start_datetime).getTime();
     const end = new Date(end_datetime).getTime();
