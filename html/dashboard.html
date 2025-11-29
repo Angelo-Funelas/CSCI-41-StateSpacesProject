@@ -30,8 +30,8 @@
         function setBldgDetails(building) {
             const name = document.createElement("p")
             const address = document.createElement("p")
-            name.textContent = `Managed Building: ${building.name}`
-            address.innerHTML = `Address: <a href=\"/building/${building.id}\">${building.address}</a>`
+            name.innerHTML = `Managed Building: <a href=\"/building/${building.id}\">${building.name}</a>`
+            address.textContent = `Address: ${building.address}`
             details.append(name, address);
         }
         async function hydrate() {
