@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venue</title>
     <script src="/static/scripts/axios.min.js"></script>
+    <script src="/static/scripts/essentials.js"></script>
+    <link rel="stylesheet" href="/static/styles/style.css">
 </head>
 <body>
     <style>
@@ -13,23 +15,18 @@
             visibility: hidden;
         }
     </style>
-    <a href="/">< Dashboard</a>
+    <a href="/dashboard">< Dashboard</a>
     <div id="building-details">
         <h1 class="heading"></h1>
         <p class="address"></p>
-    </div>
-    <form action="/manage/" method="post" id="manage-building">
         <p>Venues:</p>
         <div id="venues"></div><br>
-        <button type="submit">Submit</button>
-    </form>
+    </div>
     <script>
         const pathname = window.location.pathname;
         const pathEls = pathname.split("/");
         const building_id = pathEls[pathEls.length-1];
-
-        const venue_form = document.getElementById("manage-building");
-        venue_form.action = `/manage/${building_id}`;
+        let hidden_form_action = `/manage/${building_id}`;
 
         async function hydrate() {
             const res = await axios.get(`/api/building/${building_id}`);
@@ -41,9 +38,42 @@
             const building_address= res.data.building.address;
             heading.textContent = building_name;
             address_el.textContent = building_address;
-            res.data.venues.map(venue => {
-                venuelist_el.insertAdjacentHTML("beforeend", `<input type="checkbox" id=${venue.id} name=checkbox_${venue.id} value=${venue.id}>`);
-                venuelist_el.insertAdjacentHTML("beforeend", `<label for=${venue.id}>${venue.venue_name}</label><br>`);
+            const venues = res.data.venues; 
+            venues.sort((a, b) => a.id - b.id);
+            venues.map(venue => {
+                const manage_form = document.createElement('form');
+                manage_form.method = 'POST';
+
+                const hiddenField = document.createElement('input');
+                hiddenField.type = 'hidden';
+                hiddenField.name = "venue_id";
+                hiddenField.value = venue.id;
+
+                const manage_button = document.createElement("button");
+                manage_button.type = "submit";
+                manage_button.textContent = "Manage";
+                manage_button.disabled = venue.agent_id ? true : false;
+                manage_button.addEventListener("click", () => {
+                    manage_form.action = `/manage/${building_id}?action=add`
+                });
+
+                const unmanage_button = document.createElement("button");
+                unmanage_button.type = "submit";
+                unmanage_button.textContent = "Unmanage";
+                unmanage_button.disabled = venue.agent_id == res.data.user ? false : true;
+                unmanage_button.addEventListener("click", () => {
+                    manage_form.action = `/manage/${building_id}?action=remove`
+                });              
+
+                manage_form.appendChild(hiddenField);
+                manage_form.appendChild(manage_button);
+                manage_form.appendChild(unmanage_button);
+
+                const venue_div = document.createElement("div");
+                venue_div.textContent = venue.venue_name
+                venue_div.appendChild(manage_form);
+
+                venuelist_el.appendChild(venue_div);
             });
         }
         hydrate();

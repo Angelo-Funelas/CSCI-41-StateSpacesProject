@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="/static/scripts/axios.min.js"></script>
+    <script src="/static/scripts/essentials.js"></script>
+    <link rel="stylesheet" href="/static/styles/style.css">
+</head>
+<body>
+    <nav>
+        <h1>Dashboard</h1>
+        <a href="/logout">logout</a>
+    </nav>
+    <main>
+        <h3 id="welcome">Welcome</h3>
+        <div id="details">
+
+        </div>
+        <h2 id="title"></h2>
+        <ul id="table-entries">
+        </ul>
+    </main>
+    <script>
+        const welcome = document.getElementById("welcome");
+        const title = document.getElementById("title");
+        const details = document.getElementById("details");
+        const table = document.getElementById("table-entries");
+        function setBldgDetails(building) {
+            const name = document.createElement("p")
+            const address = document.createElement("p")
+            name.innerHTML = `Managed Building: <a href=\"/building/${building.id}\">${building.name}</a>`
+            address.textContent = `Address: ${building.address}`
+            details.append(name, address);
+        }
+        async function hydrate() {
+            const res = await axios.get(`/api/dashboard`);
+            
+            const { user, building, venues, reservations } = res.data;
+            if (user.usertype==1) setBldgDetails(building)
+            const firstname = user.firstname;
+
+            welcome.textContent = `Welcome ${firstname.split(" ")[0]}`;
+            title.textContent = (user.usertype == 1)?"Managed Venues":"Reservations";
+            const entries = (user.usertype == 1)?venues:reservations;
+            for (const entry of entries) {
+                const entry_el = document.createElement("li");
+                const link_el = document.createElement("a");
+                link_el.href = `/venue/${entry.parent_venue || entry.id}`
+                link_el.textContent = entry.venue_name || entry.venue.venue_name;
+                if (user.usertype == 0) link_el.textContent += ` ${formatDateStr(entry.start_datetime)} - ${formatDateStr(entry.end_datetime)}`
+                entry_el.append(link_el)
+                table.append(entry_el)
+            }
+        }
+        hydrate();
+        function formatDateStr(date) {
+            date = new Date(date);
+
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const month = months[date.getMonth()];
+            
+            const day = date.getDate();
+            const year = date.getFullYear();
+
+            let hours = date.getHours();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${month} ${day}, ${year} ${hours}:${minutes}${ampm}`;
+        }
+    </script>
+</body>
+</html>

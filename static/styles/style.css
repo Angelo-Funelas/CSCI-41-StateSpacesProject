@@ -1,0 +1,22 @@
+#message-container {
+    position: fixed;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    top: 1em;
+    width: 90vw;
+    background-color: rgb(227, 119, 119);
+    font-family: sans-serif;
+    color: white;
+    border-radius: 10px;
+    padding: 5px 10px;
+    animation: msg cubic-bezier(.16,1.59,.4,.86) 4s;
+    box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+}
+
+@keyframes msg {
+    0% { opacity: 0; translate: 0 -10em; }
+    10% { opacity: 1; translate: 0 0; }
+    90% { opacity: 1; translate: 0 0; }
+    100% { opacity: 0; translate: 0 -10em; }
+}
