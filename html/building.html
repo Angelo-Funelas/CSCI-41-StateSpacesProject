@@ -26,6 +26,7 @@
         const pathname = window.location.pathname;
         const pathEls = pathname.split("/");
         const building_id = pathEls[pathEls.length-1];
+        let hidden_form_action = `/manage/${building_id}`;
 
         async function hydrate() {
             const res = await axios.get(`/api/building/${building_id}`);
@@ -38,25 +39,37 @@
             heading.textContent = building_name;
             address_el.textContent = building_address;
             res.data.venues.map(venue => {
-                const manage_button = document.createElement("button");
-                manage_button.type = "submit";
-                manage_button.textContent = "Manage";
-                manage_button.disabled = venue.agent_id ? true : false;
-                
+                const manage_form = document.createElement('form');
+                manage_form.method = 'POST';
+
                 const hiddenField = document.createElement('input');
                 hiddenField.type = 'hidden';
                 hiddenField.name = "venue_id";
                 hiddenField.value = venue.id;
-                
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/manage/${building_id}`;
-                form.appendChild(hiddenField);
-                form.appendChild(manage_button);
+
+                const manage_button = document.createElement("button");
+                manage_button.type = "submit";
+                manage_button.textContent = "Manage";
+                manage_button.disabled = venue.agent_id ? true : false;
+                manage_button.addEventListener("click", () => {
+                    manage_form.action = `/manage/${building_id}?action=manage`
+                });
+
+                const unmanage_button = document.createElement("button");
+                unmanage_button.type = "submit";
+                unmanage_button.textContent = "Unmanage";
+                unmanage_button.disabled = venue.agent_id ? false : true;
+                unmanage_button.addEventListener("click", () => {
+                    manage_form.action = `/manage/${building_id}?action=unmanage`
+                });              
+
+                manage_form.appendChild(hiddenField);
+                manage_form.appendChild(manage_button);
+                manage_form.appendChild(unmanage_button);
 
                 const venue_div = document.createElement("div");
                 venue_div.textContent = venue.venue_name
-                venue_div.appendChild(form);
+                venue_div.appendChild(manage_form);
 
                 venuelist_el.appendChild(venue_div);
             });

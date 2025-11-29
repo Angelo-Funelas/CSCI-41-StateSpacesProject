@@ -287,22 +287,33 @@ app.get('/api/building/:id', async (req, res) => {
 // POST Requests (manage building, reserve venue)
 app.post('/manage/:building_id', async (req, res) => {
     const building_id = parseInt(req.params.building_id);
+    const action = req.query.action;
     if (!req.isAuthenticated()) return res.status(401).json({ error: "User not authenticated" });
     if (req.user.usertype !== 1) return res.status(401).json({ error: "User not an agent" });
     if (req.user.managed_bldg_id !== building_id) return res.status(401).json({ error: "User is not assigned to the building" });
     try {
         const id = parseInt(req.body.venue_id);
-        await prisma.venue.update({
-            where: { id },
-            data: { agent_id: req.user.id }
-        });
+        if (action == "manage") {
+            await prisma.venue.update({
+                where: { id },
+                data: { agent_id: req.user.id }
+            });
+        }
+        else if (action == "unmanage") {
+            const venue = await prisma.venue.findUnique({ where: { id } });
+            if (venue.agent_id == req.user.id)
+                await prisma.venue.update({
+                    where: { id },
+                    data: { agent_id: null}
+                });
+            else return res.status(401).json({ error: "You were not managing this venue" })
+        }
         return res.redirect(`/building/${building_id}?msg=Successfully+added+building`);
     } catch (err) {
         console.error(err);
         return res.redirect(`/building/${building_id}?msg=${encodeURIComponent(err)}`);
     }
 });
-
 function checkDateConflicts(start_datetime, end_datetime, unavailableRanges) {
     const start = new Date(start_datetime).getTime();
     const end = new Date(end_datetime).getTime();
