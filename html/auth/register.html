@@ -3,56 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login to State Spaces</title>
+    <title>Register | State Spaces</title>
+    <link href="/static/output.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/static/styles/style.css">
     <script src="/static/scripts/axios.min.js"></script>
     <script src="/static/scripts/essentials.js"></script>
-    <link rel="stylesheet" href="/static/styles/style.css">
-</head>
+    </head>
 <body>
     <style>
-        input {
-            display: block;
+        ::-webkit-calendar-picker-indicator {
+            filter: invert(0.6);
+            cursor: pointer;
         }
     </style>
-    <div id="message-container"></div>
-    <h1>Register</h1>
-    <form action="" method="POST">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
-        <input type="text" name="lastname" placeholder="Last Name" required>
-        <input type="text" name="firstname" placeholder="First Name" required>
-        <input type="text" name="middlename" placeholder="Middle Name" required>
-        <input type="date" name="birthdate" placeholder="Birth Day" required>
-        <select name="usertype" id="usertype">
-            <option value="0">Customer</option>
-            <option value="1">Agent</option>
-        </select>
-        <select id="select_bldg" name="managed_bldg" class="agent-input" style="display: none;" required>
-            <option value="" selected disabled hidden>Select Managed Building</option>
-        </select>
-        <input type="submit" value="Submit">
-    </form>
-    <p>Already have an account? Login <a href="/login">here</a>.</p>
-    <script>
-        async function hydrate(params) {
-            const res = await axios.get('/api/buildings');
-            const input_usertype = document.getElementById("usertype");
-            const agent_inputs = document.getElementsByClassName("agent-input");
-            const select_bldg = document.getElementById("select_bldg");
+</head>
+<body class="bg-slate-950 text-slate-300 min-h-screen font-sans flex items-center justify-center p-4">
 
-            res.data.map(bldg => select_bldg.add(new Option(bldg.name, bldg.id), undefined)); 
-            input_usertype.addEventListener("change", (e) => {
-                for (const input of agent_inputs) {
-                    input.style.display = (e.target.value == 1)?"block":"none";
-                }
-                if (e.target.value == 0) {
-                    select_bldg.selectedIndex = 0;
-                }
-            });
+    <main class="w-full max-w-2xl">
+        
+        <div class="auth-card p-8 relative">
+            
+            <section class="relative z-10">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-8 w-1.5 emerald-bar"></div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-100 font-serif">Register</h3>
+                    </div>
+                </div>
+
+                <form action="" method="POST" class="space-y-5">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="input-label">First Name</label>
+                            <input type="text" name="firstname" placeholder="First Name" required
+                                class="form-input rounded-lg px-4 py-3 text-sm">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="input-label">Middle Name</label>
+                            <input type="text" name="middlename" placeholder="Middle Name" required
+                                class="form-input rounded-lg px-4 py-3 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="input-label">Last Name</label>
+                            <input type="text" name="lastname" placeholder="Last Name" required
+                                class="form-input rounded-lg px-4 py-3 text-sm">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="input-label">Birth Date</label>
+                            <input type="date" name="birthdate" required
+                                class="form-input rounded-lg px-4 py-3 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="input-label">Username</label>
+                        <input type="text" name="username" placeholder="Enter your username" required
+                            class="form-input rounded-lg px-4 py-3 text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="input-label">Password</label>
+                            <input type="password" name="password" placeholder="Password" required
+                                class="form-input rounded-lg px-4 py-3 text-sm">
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="input-label">Confirm Password</label>
+                            <input type="password" name="confirmPassword" placeholder="Confirm" required
+                                class="form-input rounded-lg px-4 py-3 text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1.5">
+                            <label class="input-label">User Type</label>
+                            <div class="relative">
+                                <select name="usertype" id="usertype"
+                                    class="form-input rounded-lg px-4 py-3 text-sm appearance-none cursor-pointer">
+                                    <option value="0">Customer</option>
+                                    <option value="1">Agent</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5 agent-input hidden">
+                            <label class="input-label text-emerald-500">Managed Building</label>
+                            <div class="relative">
+                                <select id="select_bldg" name="managed_bldg"
+                                    class="form-input rounded-lg px-4 py-3 text-sm border-emerald-900/50 appearance-none cursor-pointer">
+                                    <option value="" selected disabled hidden>Select Building</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-emerald-500">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2">
+                        <input type="submit" value="Sign Up" 
+                            class="btn-submit py-3.5 rounded-lg text-xs">
+                    </div>
+                </form>
+
+                <p class="mt-6 text-center text-slate-500 text-xs">
+                    Already have an account? 
+                    <a href="/login" class="text-emerald-400 hover:text-emerald-300 font-semibold transition-colors border-b border-emerald-500/30 pb-0.5 hover:border-emerald-400">Login here</a>.
+                </p>
+            </section>
+        </div>
+
+    </main>
+
+    <script>
+        async function hydrate() {
+            try {
+                const res = await axios.get('/api/buildings');
+                const input_usertype = document.getElementById("usertype");
+                const agent_inputs = document.getElementsByClassName("agent-input");
+                const select_bldg = document.getElementById("select_bldg");
+
+                res.data.map(bldg => select_bldg.add(new Option(bldg.name, bldg.id), undefined)); 
+                
+                input_usertype.addEventListener("change", (e) => {
+                    for (const input of agent_inputs) {
+                        if (e.target.value == 1) {
+                            input.classList.remove('hidden');
+                        } else {
+                            input.classList.add('hidden');
+                        }
+                    }
+                    if (e.target.value == 0) {
+                        select_bldg.selectedIndex = 0;
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
         }
         hydrate();
-        
     </script>
 </body>
 </html>

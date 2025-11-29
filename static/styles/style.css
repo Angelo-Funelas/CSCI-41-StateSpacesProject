@@ -12,6 +12,7 @@
     padding: 5px 10px;
     animation: msg cubic-bezier(.16,1.59,.4,.86) 4s;
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
+    z-index: 9999;
 }
 
 @keyframes msg {

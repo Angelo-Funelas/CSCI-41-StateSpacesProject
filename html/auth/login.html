@@ -4,41 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="/static/scripts/essentials.js"></script>
+    <link href="/static/output.css" rel="stylesheet"/>
     <link rel="stylesheet" href="/static/styles/style.css">
+    <script src="/static/scripts/essentials.js"></script> 
 </head>
 <body class="bg-slate-950 text-slate-300 min-h-screen font-sans flex items-center justify-center p-4">
 
     <main class="w-full max-w-lg">
         
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-8 md:p-12 relative overflow-hidden">
+        <div class="auth-card p-8 md:p-12">
             
             <section class="relative z-10">
-                <div class="flex items-center gap-4 mb-10">
-                    <div class="h-10 w-1.5 bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/50"></div>
-                    <div>
-                        <h3 class="text-3xl font-bold text-slate-100 font-serif">Login</h3>
-                        <p class="text-emerald-500 text-xs font-bold uppercase tracking-widest mt-1">State Spaces Portal</p>
-                    </div>
-                </div>
+               <div class="flex items-center gap-4 mb-10">
+                   <div class="h-10 w-1.5 emerald-bar"></div>
+                   <h3 class="text-3xl font-bold text-slate-100 font-serif">Login</h3>
+               </div>
 
                 <form action="" method="POST" class="space-y-6">
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Username</label>
+                        <label class="input-label">Username</label>
                         <input type="text" name="username" placeholder="Enter your username" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-5 py-4 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                            class="form-input">
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Password</label>
+                        <label class="input-label">Password</label>
                         <input type="password" name="password" placeholder="Enter your password" 
-                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-5 py-4 text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                            class="form-input">
                     </div>
 
                     <div class="pt-4">
                         <input type="submit" value="Sign In" 
-                            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-4 rounded-xl cursor-pointer transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.15)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] tracking-wide uppercase text-sm">
+                            class="btn-submit py-4 rounded-xl text-sm">
                     </div>
                 </form>
 

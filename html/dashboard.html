@@ -3,83 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard - State Spaces</title>
+    <link href="/static/output.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="/static/styles/style.css">
     <script src="/static/scripts/axios.min.js"></script>
     <script src="/static/scripts/essentials.js"></script>
-    <link rel="stylesheet" href="/static/styles/style.css">
 </head>
-<body>
-    <nav>
-        <h1>Dashboard</h1>
-        <a href="/logout">logout</a>
-    </nav>
-    <main>
-        <h3 id="welcome">Welcome</h3>
-        <div id="details">
+<body class="bg-slate-950 text-slate-300 min-h-screen font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
 
+    <nav class="fixed top-0 left-0 w-full h-16 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 z-50">
+        <div class="max-w-7xl mx-auto px-6 md:px-10 h-full flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="/" class="font-serif font-bold text-xl tracking-wide text-slate-100 hover:text-emerald-400 transition-colors">
+                    State Spaces
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4 md:gap-6">
+                <a href="/logout" class="px-5 py-2 text-sm font-bold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-all shadow-lg shadow-red-900/20 hover:shadow-red-600/30">
+                    Logout
+                </a>
+            </div>
         </div>
-        <h2 id="title"></h2>
-        <ul id="table-entries">
-        </ul>
-        <h2>State Spaces Buildings</h2>
-        <ul id="building-entries">
-        </ul>
+    </nav>
+
+    <main class="w-full min-h-screen py-8 mt-16">
+        <div class="max-w-4xl mx-auto px-6">
+            
+            <header class="mb-10 mt-4">
+                <h3 id="welcome" class="text-3xl md:text-5xl font-bold text-slate-100 font-serif mb-2 tracking-tight">
+                    Welcome
+                </h3>
+            </header>
+
+            <div id="details" class="mb-16">
+                </div>
+
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                <h2 id="title" class="text-sm md:text-base text-emerald-400 font-bold tracking-[0.2em] uppercase opacity-90 font-sans">
+                    Loading...
+                </h2>
+            </div>
+
+            <ul id="table-entries" class="space-y-3 mb-12">
+                </ul>
+
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6 mt-12">
+                <h2 class="text-sm md:text-base text-emerald-400 font-bold tracking-[0.2em] uppercase opacity-90 font-sans">
+                    State Spaces Buildings
+                </h2>
+            </div>
+            <ul id="building-entries" class="space-y-3 pb-12">
+                 </ul>
+            
+        </div> 
     </main>
+
     <script>
         const welcome = document.getElementById("welcome");
         const title = document.getElementById("title");
         const details = document.getElementById("details");
         const table = document.getElementById("table-entries");
         const building_entries = document.getElementById("building-entries");
+
         function setBldgDetails(building) {
-            const name = document.createElement("p")
-            const address = document.createElement("p")
-            name.innerHTML = `Managed Building: <a href=\"/building/${building.id}\">${building.name}</a>`
-            address.textContent = `Address: ${building.address}`
-            details.append(name, address);
-        }
-        async function loadBuildings() {
-            const res = await axios.get(`/api/buildings`);
-            for (const bldg of res.data) {
-                const li_el = document.createElement("li")
-                const link_el = document.createElement("a");
-                link_el.textContent = bldg.name
-                link_el.href = `/building/${bldg.id}`
-                li_el.append(link_el)
-                building_entries.append(li_el)
-            }
-        }
-        async function hydrate() {
-            const res = await axios.get(`/api/dashboard`);
+            const container = document.createElement("div");
+            container.className = "p-8 md:p-10 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl relative overflow-hidden";
+
+            const labelClass = "block text-xs font-bold text-emerald-500 uppercase tracking-[0.15em] mb-3";
+            const valueClass = "text-3xl md:text-5xl font-serif font-bold text-slate-100 leading-tight";
             
-            const { user, building, venues, reservations } = res.data;
-            if (user.usertype==1) setBldgDetails(building)
-            const firstname = user.firstname;
+            container.innerHTML = `
+                <div class="relative z-20 flex flex-col gap-10">
+                    <div>
+                        <span class="${labelClass}">
+                            Managed Building
+                        </span>
+                        <a href="/building/${building.id}" class="${valueClass} hover:text-emerald-400 transition-colors border-b-2 border-transparent hover:border-emerald-400/30 inline-block">
+                            ${building.name}
+                        </a>
+                    </div>
 
-            welcome.textContent = `Welcome ${firstname.split(" ")[0]}`;
-            title.textContent = (user.usertype == 1)?"Managed Venues":"Reservations";
-            const entries = (user.usertype == 1)?venues:reservations;
-            for (const entry of entries) {
-                const entry_el = document.createElement("li");
-                const link_el = document.createElement("a");
-                link_el.href = `/venue/${entry.parent_venue || entry.id}`
-                link_el.textContent = entry.venue_name || entry.venue.venue_name;
-                if (user.usertype == 0) link_el.textContent += ` ${formatDateStr(entry.start_datetime)} - ${formatDateStr(entry.end_datetime)}`
-                entry_el.append(link_el)
-                table.append(entry_el)
-            }
-            loadBuildings();
+                    <div>
+                        <span class="${labelClass}">
+                            Location
+                        </span>
+                        <p class="${valueClass} text-2xl md:text-3xl text-slate-300">
+                            ${building.address}
+                        </p>
+                    </div>
+                </div>
+            `;
+
+            details.innerHTML = "";
+            details.append(container);
         }
-        hydrate();
-        function formatDateStr(date) {
-            date = new Date(date);
 
+        async function loadBuildings() {
+            try {
+                const res = await axios.get(`/api/buildings`);
+                building_entries.innerHTML = ""; 
+
+                if (res.data.length === 0) {
+                    building_entries.innerHTML = `<li class="text-slate-500 italic p-4">No buildings found.</li>`;
+                    return;
+                }
+                
+                for (const bldg of res.data) {
+                    const li_el = document.createElement("li");
+                    li_el.className = "group flex items-center justify-between p-5 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300 cursor-pointer";
+                    
+                    const link_el = document.createElement("a");
+                    link_el.textContent = bldg.name;
+                    link_el.href = `/building/${bldg.id}`;
+                    link_el.className = "font-medium text-slate-200 group-hover:text-emerald-400 transition-colors text-lg font-serif tracking-wide";
+
+                    li_el.append(link_el);
+                    building_entries.append(li_el);
+                }
+            } catch (err) {
+                console.error("Failed to load buildings", err);
+            }
+        }
+
+        async function hydrate() {
+            try {
+                const res = await axios.get(`/api/dashboard`);
+                const { user, building, venues, reservations } = res.data;
+                
+                const firstname = user.firstname;
+                welcome.textContent = `Welcome back, ${firstname.split(" ")[0]}`;
+
+                if (user.usertype == 1 && building) {
+                    setBldgDetails(building);
+                } else {
+                    details.style.display = 'none';
+                }
+
+                title.textContent = (user.usertype == 1) ? "Managed Venues" : "Your Reservations";
+
+                const entries = (user.usertype == 1) ? venues : reservations;
+                table.innerHTML = "";
+
+                if (!entries || entries.length === 0) {
+                    table.innerHTML = `<li class="text-slate-500 italic border border-dashed border-slate-800 p-6 rounded-xl text-center">No entries found.</li>`;
+                } else {
+                    for (const entry of entries) {
+                        const entry_el = document.createElement("li");
+                        
+                        entry_el.className = "group flex flex-col md:flex-row md:items-center justify-between p-5 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-900 hover:shadow-lg hover:shadow-emerald-500/5 transition-all duration-300";
+
+                        const link_el = document.createElement("a");
+                        link_el.href = `/venue/${entry.parent_venue || entry.id}`;
+                        link_el.className = "font-medium text-slate-200 group-hover:text-emerald-400 transition-colors text-lg font-serif tracking-wide";
+                        link_el.textContent = entry.venue_name || entry.venue.venue_name;
+
+                        entry_el.append(link_el);
+
+                        if (user.usertype == 0) {
+                            const dateContainer = document.createElement("div");
+                            dateContainer.className = "text-slate-400 font-mono text-sm mt-2 md:mt-0 bg-slate-950 px-3 py-1 rounded border border-slate-800 group-hover:border-emerald-500/30 transition-colors";
+                            dateContainer.textContent = `${formatDateStr(entry.start_datetime)} - ${formatDateStr(entry.end_datetime)}`;
+                            entry_el.append(dateContainer);
+                        }
+
+                        table.append(entry_el);
+                    }
+                }
+
+                await loadBuildings();
+
+            } catch (error) {
+                console.error(error);
+                title.textContent = "System Error";
+                title.classList.replace("text-emerald-400", "text-red-500");
+                table.innerHTML = `<li class="text-red-400">Failed to load dashboard data.</li>`;
+            }
+        }
+
+        hydrate();
+
+        function formatDateStr(date) {
+            if(!date) return "";
+            date = new Date(date);
             const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const month = months[date.getMonth()];
-            
             const day = date.getDate();
             const year = date.getFullYear();
-
             let hours = date.getHours();
             const ampm = hours >= 12 ? 'PM' : 'AM';
             hours = hours % 12;
