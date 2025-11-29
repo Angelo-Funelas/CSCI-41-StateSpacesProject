@@ -267,7 +267,7 @@ app.get('/api/building/:id', async (req, res) => {
         include: { buildingId: false }
     });
 
-    const data = { user: {id: req.user.id, usertype: req.user.usertype}, building, venues };
+    const data = { user: {...req.user, password: null}, building, venues };
     res.json(data);
 });
 

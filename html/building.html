@@ -74,7 +74,7 @@
                 venue_name_el.textContent = venue.venue_name
                 venue_name_el.href = `/venue/${venue.id}`
                 venue_div.append(venue_name_el)
-                if (res.data.user.usertype == 1) {
+                if (res.data.user.usertype == 1 && res.data.user.managed_bldg_id==res.data.building.id) {
                     venue_div.appendChild(manage_form);
                 }
 
