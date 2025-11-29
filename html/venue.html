@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venue</title>
     <script src="/static/scripts/axios.min.js"></script>
-    <script src="/static/scripts/msg.js"></script>
+    <script src="/static/scripts/essentials.js"></script>
     <link rel="stylesheet" href="/static/styles/style.css">
 </head>
 <body>
@@ -24,27 +24,47 @@
         <p class="capacity"></p>
     </div>
     <form action="/reserve/" method="post" id="reservation-form" style="display: none;">
-        <input type="number" name="participant_count" value="1" min="1">
+        <input type="number" name="participant_count" id="participant-count" value="1" min="1">
         <input type="datetime-local" name="start_datetime" id="date_start_datetime">
         <input type="datetime-local" name="end_datetime" id="date_end_datetime">
         <input type="submit" value="Make Reservation">
     </form>
+    <div>
+        <h3>Schedule</h3>
+        <ul id="schedule-entries">
+            
+        </ul>
+    </div>
     <script>
         
         const pathname = window.location.pathname;
         const pathEls = pathname.split("/");
         const venue_id = pathEls[pathEls.length-1];
         const reservation_form = document.getElementById("reservation-form");
+        const participant_count = document.getElementById("participant-count");
+        const schedule_entries = document.getElementById("schedule-entries");
+        const heading = document.querySelector("#venue-details > .heading");
+        const capacity_el = document.querySelector("#venue-details > .capacity");
         reservation_form.action = `/reserve/${venue_id}`;
+
+        function fillSchedule(dates) {
+            for (const date of dates) {
+                const entry_el = document.createElement("li");
+                const status = (date.parent_user)?"RESERVED":"RENOVATION";
+                entry_el.textContent += ` ${status} | ${formatDateStr(date.start_datetime)} - ${formatDateStr(date.end_datetime)} ${(date.parent_user)?"by " + date.User.username:""}`
+                schedule_entries.append(entry_el)
+            }
+        }
 
         async function hydrate() {
             const res = await axios.get(`/api/venue/${venue_id}`);
-            const heading = document.querySelector("#venue-details > .heading");
-            const capacity_el = document.querySelector("#venue-details > .capacity");
-            if (res.data.user.usertype == 0) reservation_form.style.display = "block";
-            const { venue_name, capacity } = res.data.venue
+            const { user, venue, amenities, renovation_dates, reservations } = res.data;
+            if (user.usertype == 0) reservation_form.style.display = "block";
+            participant_count.max = venue.capacity;
+            const { venue_name, capacity } = venue;
             heading.textContent = venue_name;
             capacity_el.textContent = `Capacity: ${capacity}`;
+            fillSchedule(renovation_dates.concat(reservations))
         }
         hydrate();
 
