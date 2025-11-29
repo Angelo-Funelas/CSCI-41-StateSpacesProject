@@ -3,9 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSCI 41 Project - State Spaces</title>
+    <title>Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>Welcome</h1>
+<body class="bg-slate-950 text-slate-300 min-h-screen font-sans">
+
+    <main class="w-full min-h-screen flex flex-col md:flex-row">
+        
+        <div class="bg-slate-900 text-white w-full md:w-5/12 lg:w-4/12 p-12 flex flex-col justify-center gap-[180px] relative overflow-hidden border-r border-slate-800 shadow-2xl z-10">
+
+            <div class="relative z-10">
+                <h1 class="text-5xl md:text-6xl font-bold tracking-wide leading-tight mb-4 font-serif">State<br>Spaces</h1>
+                <div class="h-1.5 w-24 bg-emerald-500 mb-8 rounded-full shadow-lg shadow-emerald-500/50"></div>
+                <h2 class="text-2xl text-emerald-400 font-light tracking-[0.2em] uppercase opacity-90 font-serif">Reservation Paige</h2>
+            </div>
+
+            <div class="relative z-10 space-y-8">
+                <div class="border-l-2 border-slate-700 pl-4">
+                    <p class="text-slate-400 text-xs uppercase tracking-widest font-semibold mb-1">Course</p>
+                    <p class="text-xl font-medium text-slate-100">Information Management</p>
+                    <p class="text-slate-400 font-mono text-sm mt-1">CSCI 41</p>
+                </div>
+
+                <div class="border-l-2 border-emerald-900/50 pl-4">
+                    <p class="text-slate-400 text-xs uppercase tracking-widest font-semibold mb-1">Final Project</p>
+                    <h3 class="text-2xl font-semibold text-white font-serif">Deliverable 2</h3>
+                    <p class="text-emerald-500 font-medium">November 29, 2025</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full md:w-7/12 lg:w-8/12 p-12 md:p-16 lg:p-24 bg-slate-950 flex flex-col justify-center">
+            
+            <section class="mb-20 max-w-3xl">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-10 w-1.5 bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/50"></div>
+                    <h3 class="text-3xl md:text-4xl font-bold text-slate-100 font-serif">System Overview</h3>
+                </div>
+                <p class="text-slate-400 text-lg leading-loose text-justify font-light">
+                    <span class="text-emerald-400 font-semibold">Reservation Paige</span> is a comprehensive venue reservation management system tailored for State Spaces, a premier coworking and venue provider in Metro City. The platform streamlines the management of customers, complex reservations, diverse venues, multi-story buildings, agents, and amenities. It provides robust support for real-time bookings, renovation tracking, and detailed analytical reporting.
+                </p>
+            </section>
+
+            <section class="max-w-3xl">
+                <h4 class="text-xs font-bold text-slate-500 uppercase tracking-[0.25em] mb-8 border-b border-slate-800 pb-4">Paige 'n Pals (Group 7)</h4>
+                
+                <div id="members-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                </div>
+            </section>
+        </div>
+
+    </main>
+
+    <script>
+        const members = [
+            "Carbonell, Paige J.",
+            "Funelas, Martin Angelo M.",
+            "Marcellino, Jaren Paolo G.",
+            "Mones, Martin Andrei C.",
+            "Tabo, Ken Jonree C."
+        ];
+
+        const grid = document.getElementById('members-grid');
+        
+        grid.innerHTML = members.map((name, index) => `
+            <div class="group flex items-center p-4 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-emerald-500/30 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 cursor-default">
+                <div class="w-10 h-10 rounded-full bg-slate-800 text-emerald-400 flex items-center justify-center text-sm font-bold mr-4 group-hover:bg-emerald-500/10 group-hover:text-emerald-300 transition-colors">
+                    ${index + 1}
+                </div>
+                <span class="font-medium text-slate-300 group-hover:text-white">${name}</span>
+            </div>
+        `).join('');
+    </script>
 </body>
 </html>
