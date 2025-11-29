@@ -43,6 +43,9 @@
                 for (const input of agent_inputs) {
                     input.style.display = (e.target.value == 1)?"block":"none";
                 }
+                if (e.target.value == 0) {
+                    select_bldg.selectedIndex = 0;
+                }
             });
         }
         hydrate();
