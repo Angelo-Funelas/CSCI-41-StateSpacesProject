@@ -191,7 +191,7 @@ app.get('/api/dashboard', async (req, res) => {
         res.json(data);
     }
     else {
-        const [building, venues, reservations] = await prisma.$transaction([
+        const [building, venues] = await prisma.$transaction([
             prisma.building.findUnique({
                 where: { id: user.managed_bldg_id },
             }),
@@ -202,26 +202,6 @@ app.get('/api/dashboard', async (req, res) => {
                     venue_name: true,
                     venue_type: true
                 }
-            }),
-            prisma.reservation.findMany({
-                where: {
-                    venue: {
-                        agent_id: id
-                    },
-                },
-                include: {
-                    User: {
-                        select: {
-                            lastname: true,
-                            firstname: true,
-                            middlename: true
-                        }
-                    },
-                    venue: {
-                        select: { venue_name: true }
-                    }
-                },
-                take: 5
             })
         ]);
 
