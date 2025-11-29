@@ -3,83 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Venue</title>
+    <title>Building - State Spaces</title> <link href="/static/output.css" rel="stylesheet"/>
     <script src="/static/scripts/axios.min.js"></script>
     <script src="/static/scripts/essentials.js"></script>
-    <link rel="stylesheet" href="/static/styles/style.css">
-</head>
-<body>
-    <style>
-        .hidden {
-            display: none;
-            visibility: hidden;
-        }
-    </style>
-    <a href="/dashboard">< Dashboard</a>
-    <div id="building-details">
-        <h1 class="heading"></h1>
-        <p class="address"></p>
-        <p>Venues:</p>
-        <div id="venues"></div><br>
-    </div>
+    </head>
+<body class="bg-slate-950 text-slate-300 min-h-screen font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+
+    <nav class="fixed top-0 left-0 w-full h-16 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 z-50">
+        <div class="max-w-7xl mx-auto px-6 md:px-10 h-full flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="/" class="heading-serif text-xl tracking-wide hover:text-emerald-400 transition-colors">
+                    State Spaces
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4 md:gap-6">
+                <a href="/logout" class="btn-secondary">
+                    Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="w-full min-h-screen pt-24 pb-8"> <div class="max-w-4xl mx-auto px-6 md:px-0">
+            
+            <header class="mb-8">
+                <h3 id="building-name" class="text-3xl md:text-4xl font-bold text-slate-100 font-serif mb-2"></h3>
+                <p id="building-address" class="text-xl text-slate-400"></p>
+            </header>
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+                <h2 class="text-xl text-emerald-400 font-light tracking-[0.2em] uppercase opacity-90 font-serif">
+                    Venues
+                </h2>
+                </div>
+
+            <ul id="venues-list" class="space-y-3">
+                </ul>
+            
+        </div> 
+    </main>
+
     <script>
         const pathname = window.location.pathname;
         const pathEls = pathname.split("/");
         const building_id = pathEls[pathEls.length-1];
-        let hidden_form_action = `/manage/${building_id}`;
+        
+        const buildingNameEl = document.getElementById("building-name");
+        const buildingAddressEl = document.getElementById("building-address");
+        const venuelistEl = document.getElementById("venues-list");
 
         async function hydrate() {
-            const res = await axios.get(`/api/building/${building_id}`);
-            const heading = document.querySelector("#building-details > .heading");
-            const address_el = document.querySelector("#building-details > .address");
-            const venuelist_el = document.getElementById("venues");
+            try {
+                const res = await axios.get(`/api/building/${building_id}`);
 
-            const building_name = res.data.building.name;
-            const building_address= res.data.building.address;
-            heading.textContent = building_name;
-            address_el.textContent = building_address;
-            const venues = res.data.venues; 
-            venues.sort((a, b) => a.id - b.id);
-            venues.map(venue => {
-                const manage_form = document.createElement('form');
-                manage_form.method = 'POST';
+                document.title = `${res.data.building.name} - State Spaces`;
+                buildingNameEl.textContent = res.data.building.name;
+                buildingAddressEl.textContent = res.data.building.address;
+                
+                const venues = res.data.venues; 
+                venues.sort((a, b) => a.id - b.id);
 
-                const hiddenField = document.createElement('input');
-                hiddenField.type = 'hidden';
-                hiddenField.name = "venue_id";
-                hiddenField.value = venue.id;
-
-                const manage_button = document.createElement("button");
-                manage_button.type = "submit";
-                manage_button.textContent = "Manage";
-                manage_button.disabled = venue.agent_id ? true : false;
-                manage_button.addEventListener("click", () => {
-                    manage_form.action = `/manage/${building_id}?action=add`
-                });
-
-                const unmanage_button = document.createElement("button");
-                unmanage_button.type = "submit";
-                unmanage_button.textContent = "Unmanage";
-                unmanage_button.disabled = venue.agent_id == res.data.user ? false : true;
-                unmanage_button.addEventListener("click", () => {
-                    manage_form.action = `/manage/${building_id}?action=remove`
-                });              
-
-                manage_form.appendChild(hiddenField);
-                manage_form.appendChild(manage_button);
-                manage_form.appendChild(unmanage_button);
-
-                const venue_div = document.createElement("div");
-                const venue_name_el = document.createElement("a")
-                venue_name_el.textContent = venue.venue_name
-                venue_name_el.href = `/venue/${venue.id}`
-                venue_div.append(venue_name_el)
-                if (res.data.user.usertype == 1 && res.data.user.managed_bldg_id==res.data.building.id) {
-                    venue_div.appendChild(manage_form);
+                if (venues.length === 0) {
+                    venuelistEl.innerHTML = `<li class="text-slate-500 italic">No venues found for this building.</li>`;
+                    return;
                 }
 
-                venuelist_el.appendChild(venue_div);
-            });
+                venues.forEach(venue => {
+                    const li_el = document.createElement("li");
+                    li_el.className = "group flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-emerald-500/30 hover:bg-slate-900 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300";
+
+                    const link_el = document.createElement("a");
+                    link_el.href = `/venue/${venue.id}`;
+                    link_el.className = "font-medium text-slate-200 group-hover:text-emerald-400 transition-colors text-lg";
+                    link_el.textContent = venue.venue_name;
+                    
+                    li_el.append(link_el);
+
+                    if (res.data.user.usertype == 1 && res.data.user.managed_bldg_id == res.data.building.id) {
+                        const manageContainer = document.createElement("div");
+                        manageContainer.className = "flex items-center gap-2 mt-2 md:mt-0";
+
+                        const manage_form = document.createElement('form');
+                        manage_form.method = 'POST';
+                        manage_form.className = "inline-flex";
+
+                        const hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = "venue_id";
+                        hiddenField.value = venue.id;
+
+                        const manage_button = document.createElement("button");
+                        manage_button.type = "submit";
+                        manage_button.textContent = "Manage";
+                        manage_button.className = "btn-success disabled:opacity-50 text-sm py-1 px-3"; 
+                        manage_button.disabled = venue.agent_id ? true : false;
+                        manage_button.addEventListener("click", (e) => {
+                            e.preventDefault();
+                            manage_form.action = `/manage/${building_id}?action=add`;
+                            manage_form.submit();
+                        });
+
+                        const unmanage_button = document.createElement("button");
+                        unmanage_button.type = "submit";
+                        unmanage_button.textContent = "Unmanage";
+                        unmanage_button.className = "btn-danger disabled:opacity-50 text-sm py-1 px-3";
+                        unmanage_button.disabled = venue.agent_id == res.data.user.id ? false : true; 
+                        unmanage_button.addEventListener("click", (e) => {
+                            e.preventDefault();
+                            manage_form.action = `/manage/${building_id}?action=remove`;
+                            manage_form.submit();
+                        });              
+
+                        manage_form.appendChild(hiddenField);
+                        manage_form.appendChild(manage_button);
+                        manage_form.appendChild(unmanage_button);
+                        
+                        if (venue.agent_id && venue.agent_id != res.data.user.id) {
+                            const managedByTag = document.createElement("span");
+                            managedByTag.textContent = `(Managed by Agent ${venue.agent_id})`;
+                            managedByTag.className = "text-slate-500 italic text-xs ml-3";
+                            manageContainer.appendChild(managedByTag);
+                        }
+
+                        manageContainer.prepend(manage_form);
+                        li_el.append(manageContainer);
+                    }
+                    
+                    venuelistEl.appendChild(li_el);
+                });
+            } catch (error) {
+                console.error("Error loading building data:", error);
+                buildingNameEl.textContent = "Error loading building details";
+                buildingNameEl.classList.add("text-red-500");
+            }
         }
         hydrate();
     </script>
