@@ -283,17 +283,17 @@ app.get('/api/building/:id', async (req, res) => {
 
 // POST Requests (manage building, reserve venue)
 app.post('/manage/:building_id', async (req, res) => {
+    const building_id = parseInt(req.params.building_id);
     if (!req.isAuthenticated()) return res.status(401).json({ error: "User not authenticated" });
     if (req.user.usertype !== 1) return res.status(401).json({ error: "User not an agent" });
-    const building_id = parseInt(req.params.building_id);
+    if (req.user.managed_bldg_id !== building_id) return res.status(401).json({ error: "User is not assigned to the building" });
     try {
-        await prisma.user.update({
-            where: { id: req.user.id },
-            data: { managed_bldg_id: building_id }
-        });
-        await prisma.venue.updateMany({
-            where: { buildingId: building_id },
-            data: { agent_id: req.user.id }
+        Object.values(req.body).map(async venue_id => {
+            const id = parseInt(venue_id);
+            await prisma.venue.updateMany({
+                where: { id },
+                data: { agent_id: req.user.id }
+            });
         });
         return res.redirect(`/building/${building_id}?msg=Successfully+added+building`);
     } catch (err) {

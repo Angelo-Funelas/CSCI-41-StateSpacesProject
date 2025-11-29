@@ -12,26 +12,24 @@
             display: none;
             visibility: hidden;
         }
-        input {
-            display: block;
-        }
     </style>
     <a href="/">< Dashboard</a>
     <div id="building-details">
         <h1 class="heading"></h1>
         <p class="address"></p>
-        <p>Venues:</p>
-        <ul id="venues"></ul>
     </div>
     <form action="/manage/" method="post" id="manage-building">
-        <input type="submit" value="Manage Building">
+        <p>Venues:</p>
+        <div id="venues"></div><br>
+        <button type="submit">Submit</button>
     </form>
     <script>
         const pathname = window.location.pathname;
         const pathEls = pathname.split("/");
         const building_id = pathEls[pathEls.length-1];
-        const reservation_form = document.getElementById("manage-building");
-        reservation_form.action = `/manage/${building_id}`;
+
+        const venue_form = document.getElementById("manage-building");
+        venue_form.action = `/manage/${building_id}`;
 
         async function hydrate() {
             const res = await axios.get(`/api/building/${building_id}`);
@@ -39,14 +37,14 @@
             const address_el = document.querySelector("#building-details > .address");
             const venuelist_el = document.getElementById("venues");
 
-            console.log(res.data.venues);
             const building_name = res.data.building.name;
             const building_address= res.data.building.address;
             heading.textContent = building_name;
             address_el.textContent = building_address;
-            res.data.venues.map(
-                venue => venuelist_el.insertAdjacentHTML("beforeend", `<li>${venue.venue_name}</li>`)
-            );
+            res.data.venues.map(venue => {
+                venuelist_el.insertAdjacentHTML("beforeend", `<input type="checkbox" id=${venue.id} name=checkbox_${venue.id} value=${venue.id}>`);
+                venuelist_el.insertAdjacentHTML("beforeend", `<label for=${venue.id}>${venue.venue_name}</label><br>`);
+            });
         }
         hydrate();
     </script>
