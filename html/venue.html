@@ -30,6 +30,16 @@
         <input type="submit" value="Make Reservation">
     </form>
     <div>
+        <h3>Amenities</h3>
+        <table id="amenities">
+            <tr>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Qty</th>
+            </tr>
+        </table>
+    </div>
+    <div>
         <h3>Schedule</h3>
         <ul id="schedule-entries">
             
@@ -43,6 +53,7 @@
         const reservation_form = document.getElementById("reservation-form");
         const participant_count = document.getElementById("participant-count");
         const schedule_entries = document.getElementById("schedule-entries");
+        const amenities_table = document.getElementById("amenities");
         const heading = document.querySelector("#venue-details > .heading");
         const capacity_el = document.querySelector("#venue-details > .capacity");
         reservation_form.action = `/reserve/${venue_id}`;
@@ -56,6 +67,19 @@
                 schedule_entries.append(entry_el)
             }
         }
+        function fillAmenities(amenities) {
+            for (const amenity of amenities) {
+                const row_el = document.createElement("tr");
+                const type_el = document.createElement("td");
+                const desc_el = document.createElement("td");
+                const qty_el = document.createElement("td");
+                type_el.textContent = amenity.amenity.type;
+                desc_el.textContent = amenity.amenity.item_description;
+                qty_el.textContent = amenity.quantity;
+                row_el.append(type_el, desc_el, qty_el);
+                amenities_table.append(row_el);
+            }
+        }
 
         async function hydrate() {
             const res = await axios.get(`/api/venue/${venue_id}`);
@@ -66,6 +90,7 @@
             heading.textContent = venue_name;
             capacity_el.textContent = `Capacity: ${capacity}`;
             fillSchedule(renovation_dates.concat(reservations))
+            fillAmenities(amenities);
         }
         hydrate();
 
