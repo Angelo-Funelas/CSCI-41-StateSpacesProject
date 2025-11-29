@@ -232,7 +232,8 @@ app.get('/api/dashboard', async (req, res) => {
 app.get('/api/venue/:id', async (req, res) => {
     if (!req.isAuthenticated()) return res.status(400).send(`User is not authenticated!`);
     const id = parseInt(req.params.id);
-    const [venue, amenities] = await prisma.$transaction([
+    const [user, venue, amenities] = await prisma.$transaction([
+        prisma.user.findUnique({ where: { id: req.user.id }, include: {password: false} }),
         prisma.venue.findUnique({ where: { id } }),
         prisma.venue_amenity.findMany({
             where: {
@@ -248,7 +249,7 @@ app.get('/api/venue/:id', async (req, res) => {
     ]);
     
     const base = { venue, amenities };
-    if (req.user.usertype == 1) res.json(base);
+    if (req.user.usertype == 1) res.json({...base, user});
     else {
         const [renovation_dates, reservation_dates] = await prisma.$transaction([
             prisma.renovation_date.findMany({
@@ -261,7 +262,7 @@ app.get('/api/venue/:id', async (req, res) => {
                 include: { parent_venue: false }
             }),
         ]);
-        res.json({ ...base, renovation_dates, reservation_dates });
+        res.json({ user, ...base, renovation_dates, reservation_dates });
     }
 });
 app.get('/api/buildings', async (req, res) => {

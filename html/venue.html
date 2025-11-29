@@ -23,10 +23,10 @@
         <h1 class="heading"></h1>
         <p class="capacity"></p>
     </div>
-    <form action="/reserve/" method="post" id="reservation-form">
+    <form action="/reserve/" method="post" id="reservation-form" style="display: none;">
         <input type="number" name="participant_count" value="1" min="1">
-        <input type="date" name="start_datetime" id="date_start_datetime">
-        <input type="date" name="end_datetime" id="date_end_datetime">
+        <input type="datetime-local" name="start_datetime" id="date_start_datetime">
+        <input type="datetime-local" name="end_datetime" id="date_end_datetime">
         <input type="submit" value="Make Reservation">
     </form>
     <script>
@@ -41,21 +41,22 @@
             const res = await axios.get(`/api/venue/${venue_id}`);
             const heading = document.querySelector("#venue-details > .heading");
             const capacity_el = document.querySelector("#venue-details > .capacity");
-            console.log(res.data)
+            if (res.data.user.usertype == 0) reservation_form.style.display = "block";
             const { venue_name, capacity } = res.data.venue
             heading.textContent = venue_name;
             capacity_el.textContent = `Capacity: ${capacity}`;
         }
         hydrate();
 
-        const today = new Date();
-        const year = today.getFullYear();
-        let month = today.getMonth() + 1;
-        let day = today.getDate();
-        month = month < 10 ? '0' + month : month;
-        day = day < 10 ? '0' + day : day;
-
-        const formattedToday = `${year}-${month}-${day}`;
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+        const formattedToday = formatDate(new Date());
 
         // Set the min attribute of the date input
         const date_start_datetime = document.getElementById("date_start_datetime");
@@ -67,19 +68,12 @@
         date_start_datetime.addEventListener("change", (e) => {
             const start_date = new Date(date_start_datetime.value);
             const end_date = new Date(date_end_datetime.value);
+            date_end_datetime.setAttribute("min", formatDate(start_date));
             if (start_date>end_date) {
                 date_end_datetime.value = date_start_datetime.value;
             }
         })
         date_start_datetime.addEventListener("change", (e) => {
-            const start_date = new Date(e.target.value);
-            const start_year = start_date.getFullYear();
-            let start_month = start_date.getMonth() + 1;
-            let start_day = start_date.getDate();
-            start_month = start_month < 10 ? '0' + start_month : start_month;
-            start_day = start_day < 10 ? '0' + start_day : start_day;
-            const formattedStart = `${start_year}-${start_month}-${start_day}`;
-            date_end_datetime.setAttribute("min", formattedStart);
         })
     </script>
 </body>
