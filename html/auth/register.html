@@ -7,8 +7,7 @@
     <link href="/static/output.css" rel="stylesheet"/>
     <script src="/static/scripts/axios.min.js"></script>
     <script src="/static/scripts/essentials.js"></script>
-    <link rel="stylesheet" href="/static/styles/style.css">
-</head>
+    </head>
 <body>
     <style>
         ::-webkit-calendar-picker-indicator {
@@ -21,11 +20,11 @@
 
     <main class="w-full max-w-2xl">
         
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl p-8 relative">
+        <div class="auth-card p-8 relative">
             
             <section class="relative z-10">
                 <div class="flex items-center gap-4 mb-8">
-                    <div class="h-8 w-1.5 bg-emerald-500 rounded-full shadow-lg shadow-emerald-500/50"></div>
+                    <div class="h-8 w-1.5 emerald-bar"></div>
                     <div>
                         <h3 class="text-2xl font-bold text-slate-100 font-serif">Register</h3>
                     </div>
@@ -35,55 +34,55 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">First Name</label>
+                            <label class="input-label">First Name</label>
                             <input type="text" name="firstname" placeholder="First Name" required
-                                class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                                class="form-input rounded-lg px-4 py-3 text-sm">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Middle Name</label>
+                            <label class="input-label">Middle Name</label>
                             <input type="text" name="middlename" placeholder="Middle Name" required
-                                class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                                class="form-input rounded-lg px-4 py-3 text-sm">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Last Name</label>
+                            <label class="input-label">Last Name</label>
                             <input type="text" name="lastname" placeholder="Last Name" required
-                                class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                                class="form-input rounded-lg px-4 py-3 text-sm">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Birth Date</label>
+                            <label class="input-label">Birth Date</label>
                             <input type="date" name="birthdate" required
-                                class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                                class="form-input rounded-lg px-4 py-3 text-sm">
                         </div>
                     </div>
 
                     <div class="space-y-1.5">
-                        <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Username</label>
+                        <label class="input-label">Username</label>
                         <input type="text" name="username" placeholder="Enter your username" required
-                            class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                            class="form-input rounded-lg px-4 py-3 text-sm">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Password</label>
+                            <label class="input-label">Password</label>
                             <input type="password" name="password" placeholder="Password" required
-                                class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                                class="form-input rounded-lg px-4 py-3 text-sm">
                         </div>
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">Confirm Password</label>
+                            <label class="input-label">Confirm Password</label>
                             <input type="password" name="confirmPassword" placeholder="Confirm" required
-                                class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300">
+                                class="form-input rounded-lg px-4 py-3 text-sm">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="space-y-1.5">
-                            <label class="text-xs font-bold text-slate-500 uppercase tracking-widest ml-1">User Type</label>
+                            <label class="input-label">User Type</label>
                             <div class="relative">
                                 <select name="usertype" id="usertype"
-                                    class="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300 appearance-none cursor-pointer">
+                                    class="form-input rounded-lg px-4 py-3 text-sm appearance-none cursor-pointer">
                                     <option value="0">Customer</option>
                                     <option value="1">Agent</option>
                                 </select>
@@ -94,10 +93,10 @@
                         </div>
 
                         <div class="space-y-1.5 agent-input hidden">
-                            <label class="text-xs font-bold text-emerald-500 uppercase tracking-widest ml-1">Managed Building</label>
+                            <label class="input-label text-emerald-500">Managed Building</label>
                             <div class="relative">
                                 <select id="select_bldg" name="managed_bldg"
-                                    class="w-full bg-slate-950 border border-emerald-900/50 rounded-lg px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300 appearance-none cursor-pointer">
+                                    class="form-input rounded-lg px-4 py-3 text-sm border-emerald-900/50 appearance-none cursor-pointer">
                                     <option value="" selected disabled hidden>Select Building</option>
                                 </select>
                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-emerald-500">
@@ -109,7 +108,7 @@
 
                     <div class="pt-2">
                         <input type="submit" value="Sign Up" 
-                            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3.5 rounded-lg cursor-pointer transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.15)] hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] tracking-wide uppercase text-xs">
+                            class="btn-submit py-3.5 rounded-lg text-xs">
                     </div>
                 </form>
 
