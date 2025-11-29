@@ -86,8 +86,11 @@ app.use(express.json())
 
 // USER MANAGEMENT
 app.get('/', (req, res) => {
-    if (!req.isAuthenticated()) return res.redirect(`/login`);
     res.sendFile("html/index.html", {root: path.join(__dirname)});
+});
+app.get('/dashboard', (req, res) => {
+    if (!req.isAuthenticated()) return res.redirect(`/login`);
+    res.sendFile("html/dashboard.html", {root: path.join(__dirname)});
 });
 app.get('/login', (req, res) => {
     res.sendFile("html/auth/login.html", {root: path.join(__dirname)});
@@ -98,8 +101,7 @@ app.post("/login", (req, res, next) => {
         if (!user) return res.redirect(`/login?msg=${encodeURIComponent(info.message)}`);
         req.logIn(user, (err) => {
             if (err) return next(err);
-            let redirectPath = "/?success=Login+successful";
-            console.log(`First Login: ${user.firstLogin}`)
+            let redirectPath = "/dashboard?success=Login+successful";
             if (user.firstLogin) {
                 updateUser(prisma, user.id, {
                 firstLogin: false,
