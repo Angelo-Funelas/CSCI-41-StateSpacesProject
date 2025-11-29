@@ -58,7 +58,7 @@
                 const unmanage_button = document.createElement("button");
                 unmanage_button.type = "submit";
                 unmanage_button.textContent = "Unmanage";
-                unmanage_button.disabled = venue.agent_id ? false : true;
+                unmanage_button.disabled = venue.agent_id == res.data.user ? false : true;
                 unmanage_button.addEventListener("click", () => {
                     manage_form.action = `/manage/${building_id}?action=remove`
                 });              

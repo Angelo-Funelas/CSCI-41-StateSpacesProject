@@ -280,7 +280,7 @@ app.get('/api/building/:id', async (req, res) => {
         include: { buildingId: false }
     });
 
-    const data = { building, venues };
+    const data = { user: req.user.id, building, venues };
     res.json(data);
 });
 
@@ -309,7 +309,7 @@ app.post('/manage/:building_id', async (req, res) => {
                 });
                 return res.redirect(`/building/${building_id}?msg=Successfully+removed+building`);
             }
-            else return res.status(401).json({ error: "You were not managing this venue" })
+            return res.redirect(`/building/${building_id}?msg=You+are+not+managing+this+venue`);
         }
     } catch (err) {
         console.error(err);
