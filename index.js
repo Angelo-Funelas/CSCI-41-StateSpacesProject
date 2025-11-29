@@ -174,7 +174,7 @@ app.get('/api/dashboard', async (req, res) => {
         }
     });
 
-    if (user.usertype != 1) {
+    if (user.usertype == 0) {
         const reservations = await prisma.reservation.findMany({
             where: { parent_user: id },
             include: {
@@ -191,8 +191,8 @@ app.get('/api/dashboard', async (req, res) => {
         res.json(data);
     }
     else {
-        const [buildings, venues, reservations] = await prisma.$transaction([
-            prisma.building.findMany({
+        const [building, venues, reservations] = await prisma.$transaction([
+            prisma.building.findUnique({
                 where: { id: user.managed_bldg_id },
             }),
             prisma.venue.findMany({
@@ -225,7 +225,7 @@ app.get('/api/dashboard', async (req, res) => {
             })
         ]);
 
-        const data = { user, buildings, venues, reservations };
+        const data = { user, building, venues };
         res.json(data);
     }
 });

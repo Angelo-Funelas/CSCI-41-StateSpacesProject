@@ -4,8 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <script src="/static/scripts/axios.min.js"></script>
+    <script src="/static/scripts/msg.js"></script>
+    <link rel="stylesheet" href="/static/styles/style.css">
 </head>
 <body>
-    <h1>Dashboard</h1>
+    <nav>
+        <h1>Dashboard</h1>
+        <a href="/logout">logout</a>
+    </nav>
+    <main>
+        <h3 id="welcome">Welcome</h3>
+        <div id="details">
+
+        </div>
+        <h2 id="title"></h2>
+        <ul id="table-entries">
+        </ul>
+    </main>
+    <script>
+        const welcome = document.getElementById("welcome");
+        const title = document.getElementById("title");
+        const details = document.getElementById("details");
+        const table = document.getElementById("table-entries");
+        function setBldgDetails(building) {
+            const name = document.createElement("p")
+            const address = document.createElement("p")
+            name.textContent = `Managed Building: ${building.name}`
+            address.innerHTML = `Address: <a href=\"/building/${building.id}\">${building.address}</a>`
+            details.append(name, address);
+        }
+        async function hydrate() {
+            const res = await axios.get(`/api/dashboard`);
+            
+            const { user, building, venues, reservations } = res.data;
+            if (user.usertype==1) setBldgDetails(building)
+            const firstname = user.firstname;
+
+            welcome.textContent = `Welcome ${firstname.split(" ")[0]}`;
+            title.textContent = (user.usertype == 1)?"Managed Venues":"Reservations";
+            const entries = (user.usertype == 1)?venues:reservations;
+            for (const entry of entries) {
+                const entry_el = document.createElement("li");
+                const link_el = document.createElement("a");
+                link_el.href = `/venue/${entry.id}`
+                link_el.textContent = entry.venue_name || entry.venue.venue_name;
+                entry_el.append(link_el)
+                table.append(entry_el)
+            }
+        }
+        hydrate();
+    </script>
 </body>
 </html>
