@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venue</title>
+    <script src="/static/scripts/axios.min.js"></script>
+</head>
+<body>
+    <style>
+        .hidden {
+            display: none;
+            visibility: hidden;
+        }
+        input {
+            display: block;
+        }
+    </style>
+    <a href="/">< Dashboard</a>
+    <div id="building-details">
+        <h1 class="heading"></h1>
+        <p class="address"></p>
+        <p>Venues:</p>
+        <ul id="venues"></ul>
+    </div>
+    <form action="/manage/" method="post" id="manage-building">
+        <input type="submit" value="Manage Building">
+    </form>
+    <script>
+        const pathname = window.location.pathname;
+        const pathEls = pathname.split("/");
+        const building_id = pathEls[pathEls.length-1];
+        const reservation_form = document.getElementById("manage-building");
+        reservation_form.action = `/manage/${building_id}`;
+
+        async function hydrate() {
+            const res = await axios.get(`/api/building/${building_id}`);
+            const heading = document.querySelector("#building-details > .heading");
+            const address_el = document.querySelector("#building-details > .address");
+            const venuelist_el = document.getElementById("venues");
+
+            console.log(res.data.venues);
+            const building_name = res.data.building.name;
+            const building_address= res.data.building.address;
+            heading.textContent = building_name;
+            address_el.textContent = building_address;
+            res.data.venues.map(
+                venue => venuelist_el.insertAdjacentHTML("beforeend", `<li>${venue.venue_name}</li>`)
+            );
+        }
+        hydrate();
+    </script>
+</body>
+</html>
