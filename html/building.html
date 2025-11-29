@@ -38,7 +38,9 @@
             const building_address= res.data.building.address;
             heading.textContent = building_name;
             address_el.textContent = building_address;
-            res.data.venues.map(venue => {
+            const venues = res.data.venues; 
+            venues.sort((a, b) => a.id - b.id);
+            venues.map(venue => {
                 const manage_form = document.createElement('form');
                 manage_form.method = 'POST';
 
