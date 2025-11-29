@@ -15,16 +15,17 @@ function formatDateStr(date) {
     return `${month} ${day}, ${year} ${hours}:${minutes}${ampm}`;
 }
 document.addEventListener("DOMContentLoaded", () => {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    if (urlParams.has('msg')) {
-        const message = urlParams.get('msg');
+    const url = new URL(window.location);
+    if (url.searchParams.has('msg')) {
+        const message = url.searchParams.get('msg');
         const element = document.createElement('div');
         element.id = "message-container";
         element.textContent = message;
         element.addEventListener("animationend", (e) => {
             e.target.remove();
         })
-        document.body.append(element)
+        document.body.append(element);
+        url.searchParams.delete('msg');
+        window.history.replaceState(null, '', url);
     }
-})
+});
