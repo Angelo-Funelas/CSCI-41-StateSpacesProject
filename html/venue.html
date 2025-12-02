@@ -3,51 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Venue</title>
+    <title>Venue Details - State Spaces</title>
+    <link href="/static/output.css" rel="stylesheet"/>
     <script src="/static/scripts/axios.min.js"></script>
     <script src="/static/scripts/essentials.js"></script>
-    <link rel="stylesheet" href="/static/styles/style.css">
+    
+<style>
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+        filter: invert(1);
+        cursor: pointer;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+    }
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+    }
+
+    #venue-details .description p {
+        margin-bottom: 0.5rem;
+        font-size: 1.125rem;
+        color: #94a3b8;
+    }
+    #venue-details .description a {
+        color: #34d399;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+    #venue-details .description a:hover {
+        color: #6ee7b7;
+        text-decoration: underline;
+    }
+
+    #schedule-entries li {
+        padding: 1rem;
+        background-color: rgba(15, 23, 42, 0.5);
+        border: 1px solid #1e293b;
+        border-radius: 0.75rem;
+        margin-bottom: 0.75rem;
+        color: #cbd5e1;
+        display: flex;
+        align-items: center;
+    }
+    #schedule-entries li::before {
+        content: '';
+        display: inline-block;
+        width: 0.5rem;
+        height: 0.5rem;
+        background-color: #34d399;
+        border-radius: 50%;
+        margin-right: 0.75rem;
+    }
+
+    #amenities tr {
+        border-bottom: 1px solid #1e293b;
+        transition: background-color 0.2s;
+    }
+    #amenities tr:hover {
+        background-color: rgba(30, 41, 59, 0.5);
+    }
+    #amenities td {
+        padding: 1rem;
+        color: #cbd5e1;
+    }
+    #amenities tr:last-child {
+        border-bottom: none;
+    }
+</style>
 </head>
-<body>
-    <style>
-        .hidden {
-            display: none;
-            visibility: hidden;
-        }
-        input {
-            display: block;
-        }
-    </style>
-    <a href="/dashboard">< Dashboard</a>
-    <div id="venue-details">
-        <h1 class="heading"></h1>
-        <div class="description">
+<body class="bg-slate-950 text-slate-300 min-h-screen font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+
+    <nav class="fixed top-0 left-0 w-full h-16 bg-slate-950/80 backdrop-blur-md border-b border-slate-800 z-50">
+        <div class="max-w-7xl mx-auto px-6 md:px-10 h-full flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href="/" class="heading-serif text-xl tracking-wide hover:text-emerald-400 transition-colors">
+                    State Spaces
+                </a>
+            </div>
+
+            <div class="flex items-center gap-4 md:gap-6">
+                <a href="/logout" class="btn-secondary text-sm border border-slate-700 px-4 py-2 rounded hover:bg-slate-800 transition-colors">
+                    Logout
+                </a>
+            </div>
         </div>
-    </div>
-    <form action="/reserve/" method="post" id="reservation-form" style="display: none;">
-        <input type="number" name="participant_count" id="participant-count" value="1" min="1">
-        <input type="datetime-local" name="start_datetime" id="date_start_datetime">
-        <input type="datetime-local" name="end_datetime" id="date_end_datetime">
-        <input type="submit" value="Make Reservation">
-    </form>
-    <div>
-        <h3>Amenities</h3>
-        <table id="amenities">
-            <tr>
-                <th>Type</th>
-                <th>Description</th>
-                <th>Qty</th>
-            </tr>
-        </table>
-    </div>
-    <div>
-        <h3>Schedule</h3>
-        <ul id="schedule-entries">
+    </nav>
+
+    <main class="w-full min-h-screen pt-24 pb-8">
+        <div class="max-w-4xl mx-auto px-6 md:px-0">
             
-        </ul>
-    </div>
+            <div id="venue-details" class="mb-10">
+                <h1 class="heading text-3xl md:text-5xl font-bold text-slate-100 font-serif mb-4"></h1>
+                <div class="description bg-slate-900/30 p-6 rounded-xl border border-slate-800/50 shadow-sm">
+                    </div>
+            </div>
+
+            <div class="mb-10">
+                <form action="/reserve/" method="post" id="reservation-form" style="display: none;" class="bg-slate-900/80 p-6 rounded-xl border border-slate-700 shadow-lg shadow-emerald-900/10 backdrop-blur-sm">
+                    <h3 class="text-xl text-emerald-400 font-serif mb-6 flex items-center gap-2">
+                        <span>Make a Reservation</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Participants</label>
+                            <input type="number" name="participant_count" id="participant-count" value="1" min="1" 
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500 text-white placeholder-slate-600 transition-colors">
+                        </div>
+                        <div class="hidden md:block">
+                            </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Start Date</label>
+                            <input type="datetime-local" name="start_datetime" id="date_start_datetime"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500 text-white transition-colors">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">End Date</label>
+                            <input type="datetime-local" name="end_datetime" id="date_end_datetime"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-emerald-500 text-white transition-colors">
+                        </div>
+                    </div>
+                    <input type="submit" value="Confirm Reservation" 
+                        class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 cursor-pointer shadow-lg shadow-emerald-900/20 hover:shadow-emerald-900/40">
+                </form>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-4">
+                        <h3 class="text-lg text-emerald-400 font-light tracking-[0.2em] uppercase opacity-90 font-serif">
+                            Amenities
+                        </h3>
+                    </div>
+                    <div class="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 shadow-sm">
+                        <table id="amenities" class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-900/80 text-slate-400 text-xs font-bold uppercase tracking-wider border-b border-slate-800">
+                                    <th class="p-4">Type</th>
+                                    <th class="p-4">Description</th>
+                                    <th class="p-4 text-center">Qty</th>
+                                </tr>
+                            </thead>
+                            </table>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-4">
+                        <h3 class="text-lg text-emerald-400 font-light tracking-[0.2em] uppercase opacity-90 font-serif">
+                            Schedule
+                        </h3>
+                    </div>
+                    <ul id="schedule-entries" class="space-y-0">
+                        </ul>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
     <script>
-        
         const pathname = window.location.pathname;
         const pathEls = pathname.split("/");
         const venue_id = pathEls[pathEls.length-1];
@@ -121,7 +235,6 @@
         }
         const formattedToday = formatDate(new Date());
 
-        // Set the min attribute of the date input
         const date_start_datetime = document.getElementById("date_start_datetime");
         const date_end_datetime = document.getElementById("date_end_datetime");
         date_start_datetime.value = formattedToday;
